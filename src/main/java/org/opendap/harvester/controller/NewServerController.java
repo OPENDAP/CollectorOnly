@@ -56,7 +56,7 @@ public class NewServerController {
 		}
 		else{
 			return "/harvester/registration?serverUrl="+serverUrl
-					+"reporterUrl="+reporterUrl
+					+"&reporterUrl="+reporterUrl
 					+"&ping="+convertedPing
 					+"&log="+convertedLog;
 		}
