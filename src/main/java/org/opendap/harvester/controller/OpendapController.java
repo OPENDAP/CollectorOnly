@@ -45,7 +45,7 @@ public class OpendapController{
 		String str = "OPENDAP Collector Home";
 		mav.addObject("message", str);
 		
-		/*
+		
 		List<HyraxInstanceDto> list = hyraxInstanceService.allHyraxInstances(true)
 				.map(hyraxInstanceService::buildDto)
 				.collect(Collectors.toList());
@@ -56,10 +56,8 @@ public class OpendapController{
 			nameList[index] = hid.getName();
 			index++;
 		}
-		*/
 		
-		String[] nameList = new String[] {"siteOne","siteTwo","siteThree","siteFour","siteFive"};
-		
+		//String[] nameList = new String[] {"siteOne","siteTwo","siteThree","siteFour","siteFive"};
 		
 		mav.addObject("items", nameList);
 		

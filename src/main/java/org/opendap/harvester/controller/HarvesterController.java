@@ -34,21 +34,32 @@ public class HarvesterController {
 
     /**
      * Called when /harvester/registration request come. Automatically setting up request attributes to special object.
+     * SBL - checks if reporter is already in DB, if so passes to 'updatePing()' to check if ping value in DB needs to be updated
      * @param registerModel
      * @return
      * @throws Exception
+     * 
+     * 1/22/19 - SBL - modified method to include if/else statement
      */
     @RequestMapping(path = "/registration", method = RequestMethod.GET)
     @ResponseBody
     public HyraxInstanceDto register(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
-        // Calling service method and returning result
-        HyraxInstance register = hyraxInstanceService.register(
-                registerModel.getServerUrl(),
-                StringUtils.isEmpty(registerModel.getReporterUrl()) ?
-                        registerModel.getServerUrl() : registerModel.getReporterUrl(),
-                registerModel.getPing(),
-                registerModel.getLog());
-        return hyraxInstanceService.buildDto(register);
+    	HyraxInstance register;
+    	if (hyraxInstanceService.findHyraxInstanceByName(registerModel.getServerUrl())!= null) {
+    		//System.out.println("\n\tfound it!!!!\n\t"+registerModel.getReporterUrl()+"\n");
+    		register = hyraxInstanceService.updatePing(registerModel.getServerUrl(), registerModel.getPing(), hyraxInstanceService);
+    		return hyraxInstanceService.buildDto(register);
+    	}
+    	else {
+    	// Calling service method and returning result
+	        register = hyraxInstanceService.register(
+	                registerModel.getServerUrl(),
+	                StringUtils.isEmpty(registerModel.getReporterUrl()) ?
+	                        registerModel.getServerUrl() : registerModel.getReporterUrl(),
+	                registerModel.getPing(),
+	                registerModel.getLog());
+	        return hyraxInstanceService.buildDto(register);
+    	}
     }
 
     @RequestMapping(path = "/allHyraxInstances", method = RequestMethod.GET)

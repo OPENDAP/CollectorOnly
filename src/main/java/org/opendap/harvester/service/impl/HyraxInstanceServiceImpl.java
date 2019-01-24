@@ -73,6 +73,25 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         return onlyActive ? hyraxInstanceRepository.streamByActiveTrue() :
                 hyraxInstanceRepository.findAll().stream();
     }
+    
+    /**
+     * SBL - gets hyraxInstance from DB and checks if ping needs to be updated
+     * if no update needed, just returns current hyraxInstance
+     * 
+     * 1/22/18 - SBL - initial code
+     */
+    @Override
+    public HyraxInstance updatePing(String serverUrl, long ping, HyraxInstanceService hyraxInstanceService) {
+    	HyraxInstance hyraxInstance = hyraxInstanceService.findHyraxInstanceByName(serverUrl);
+    	if (hyraxInstance.getPing() != ping) {
+    		hyraxInstance.setPing(ping);
+    		return hyraxInstanceRepository.save(hyraxInstance);
+    	}
+    	else {
+    		return hyraxInstance;
+    	 }
+
+    }
 
     private void checkReporter(String server) throws Exception {
         ResponseEntity<String> entity = restTemplate.getForEntity(new URI(server + "/healthcheck"), String.class);

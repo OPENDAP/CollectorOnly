@@ -13,4 +13,5 @@ public interface HyraxInstanceService {
     HyraxInstanceDto buildDto(HyraxInstance hyraxInstance);
     void updateLastAccessTime(HyraxInstance hi, LocalDateTime localDateTime);
     HyraxInstance findHyraxInstanceByName(String hyraxInstanceName);
+    public HyraxInstance updatePing(String serverUrl, long ping, HyraxInstanceService hIS);
 }

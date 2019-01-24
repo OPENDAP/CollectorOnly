@@ -42,7 +42,7 @@ public class NewServerController {
 	 * 12/26/18 - SBL - initial code
 	 */
 	@RequestMapping(path="/AddNewServer", method = RequestMethod.POST)
-	public String addNewServer(@RequestParam String serverUrl, 
+	public ModelAndView addNewServer(@RequestParam String serverUrl, 
 			@RequestParam String reporterUrl, 
 			@RequestParam String ping, 
 			@RequestParam String log){
@@ -50,15 +50,15 @@ public class NewServerController {
 		int convertedLog = Integer.parseInt(log);
 		
 		if (reporterUrl.isEmpty()){
-			return "/harvester/registration?serverUrl="+serverUrl
+			return new ModelAndView("redirect:/harvester/registration?serverUrl="+serverUrl
 					+"&ping="+convertedPing
-					+"&log="+convertedLog;
+					+"&log="+convertedLog);
 		}
 		else{
-			return "/harvester/registration?serverUrl="+serverUrl
+			return new ModelAndView("redirect:/harvester/registration?serverUrl="+serverUrl
 					+"&reporterUrl="+reporterUrl
 					+"&ping="+convertedPing
-					+"&log="+convertedLog;
+					+"&log="+convertedLog);
 		}
 		
 		
