@@ -1,5 +1,5 @@
 /**
- * Entry point for REST call. All controllers receives REST request outside and reroute
+  * Entry point for REST call. All controllers receives REST request outside and reroute
  * them to internal application services. After that it returns results.
  */
 package org.opendap.harvester.controller;
@@ -39,16 +39,47 @@ public class HarvesterController {
      * @return
      * @throws Exception
      * 
-     * 1/22/19 - SBL - modified method to include if/else statement
+     * 1/22/19 - SBL - modified method to include if/else statement and 'updatePing' call
      */
     @RequestMapping(path = "/registration", method = RequestMethod.GET)
     @ResponseBody
-    public HyraxInstanceDto register(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
+    public HyraxInstanceDto registerGet(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
+    	//System.out.println("\n\tGet Method :");
     	HyraxInstance register;
     	if (hyraxInstanceService.findHyraxInstanceByName(registerModel.getServerUrl())!= null) {
-    		//System.out.println("\n\tfound it!!!!\n\t"+registerModel.getReporterUrl()+"\n");
+    		//System.out.println("\t\tHyrax found => update called:");
     		register = hyraxInstanceService.updatePing(registerModel.getServerUrl(), registerModel.getPing(), hyraxInstanceService);
     		return hyraxInstanceService.buildDto(register);
+    	}
+    	else {
+    	// Calling service method and returning result
+    		//System.out.println("\t\tHyrax not found => add server called:");
+	        register = hyraxInstanceService.register(
+	                registerModel.getServerUrl(),
+	                StringUtils.isEmpty(registerModel.getReporterUrl()) ?
+	                        registerModel.getServerUrl() : registerModel.getReporterUrl(),
+	                registerModel.getPing(),
+	                registerModel.getLog());
+	        return hyraxInstanceService.buildDto(register);
+    	}
+    }//end register GET
+    
+    
+    /**
+     * 
+     * @param registerModel
+     * @return
+     * @throws Exception
+     * 
+     * 2/7/19 - SBL - initial code
+     *//*
+    @RequestMapping(path = "/registration", method = RequestMethod.POST)
+    public boolean registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
+    	System.out.println("\n\tPost Method\n\t"+registerModel.toString()+"\n");
+    	HyraxInstance register;
+    	if (hyraxInstanceService.findHyraxInstanceByName(registerModel.getServerUrl())!= null) {
+    		register = hyraxInstanceService.updatePing(registerModel.getServerUrl(), registerModel.getPing(), hyraxInstanceService);
+    		return true;
     	}
     	else {
     	// Calling service method and returning result
@@ -58,9 +89,9 @@ public class HarvesterController {
 	                        registerModel.getServerUrl() : registerModel.getReporterUrl(),
 	                registerModel.getPing(),
 	                registerModel.getLog());
-	        return hyraxInstanceService.buildDto(register);
+	        return false;
     	}
-    }
+    }//end register POST */
 
     @RequestMapping(path = "/allHyraxInstances", method = RequestMethod.GET)
     @ResponseBody

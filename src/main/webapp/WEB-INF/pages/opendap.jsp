@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>OPENDAP Collecter Home</title>
+<title>OPENDAP Collector Home</title>
 </head>
 <body>
 	<div id="Header" >
@@ -19,7 +19,9 @@
 			<c:forEach items="${items}" var="listItem">
 				<tr>
 					<td>
-						<a href="/harvester/logLines?hyraxInstanceName=${listItem}">
+						<!-- <a href="/harvester/logLines?hyraxInstanceName=${listItem}"> -->
+						<!-- <a href="/healthcheck/server?hyraxInstanceName=${listItem}"> -->
+						<a href="/server?hyraxInstanceName=${listItem}">
 							<c:out value="${listItem}"></c:out>
 						</a>
 					</td>
