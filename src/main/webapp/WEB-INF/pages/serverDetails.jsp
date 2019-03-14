@@ -11,14 +11,38 @@
 	<h1>Server Details</h1>
 	<div id="Details">
 		<table>
-			<tr><td><h4>Server URL: ${serverUrl}</h4></td></tr>
-			<tr><td><h4>Reporter URL: ${reporterUrl}</h4></td></tr>
-			<tr><td><h4>Ping Interval: ${ping}</h4></td></tr>
-			<tr><td><h4>Number of Logs to Pull: ${log}</h4></td></tr>
-			<tr><td><h4>Software Version: ${version}</h4></td></tr>
-			<tr><td><h4>Date Registered: ${registrationTime}</h4></td></tr>
-			<tr><td><h4>Last Accessed: ${lastAccessTime}</h4></td></tr>
-			<tr><td><h4>Currently Active: ${active}</h4></td></tr>	
+			<tr>
+				<td><h3>Server URL: </h3></td>
+				<td><h4>${serverUrl}</h4></td>
+			</tr>
+			<tr>
+				<td><h3>Reporter URL: </h3></td>
+				<td><h4>${reporterUrl}</h4></td>
+			</tr>
+			<tr>
+				<td><h3>Ping Interval: </h3></td>
+				<td><h4>${ping}</h4></td>
+			</tr>
+			<tr>
+				<td><h3># of Logs to Pull: </h3></td>
+				<td><h4>${log}</h4></td>
+			</tr>
+			<tr>
+				<td><h3>Software Version: </h3></td>
+				<td><h4>${version}</h4></td>
+			</tr>
+			<tr>
+				<td><h3>Date Registered: </h3></td>
+				<td><h4>${registrationTime}</h4></td>
+			</tr>
+			<tr>
+				<td><h3>Last Accessed: </h3></td>
+				<td><h4>${lastAccessTime}</h4></td>
+			</tr>
+			<tr>
+				<td><h3>Currently Active: </h3></td>
+				<td><h4>${active}</h4></td>
+			</tr>	
 		</table>
 		<a href="/harvester/logLines?hyraxInstanceName=${name}">
 			Server Access Logs
