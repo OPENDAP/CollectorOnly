@@ -7,12 +7,18 @@
 	<welcome-file-list>
 		<!-- <welcome-file>index.jsp</welcome-file>  -->
 		<welcome-file>opendap.jsp</welcome-file>
+		<welcome-file>opendap.html</welcome-file>
 	</welcome-file-list>
-	
 	<!--  
+	<servlet>
+		<description>...</description>
+		<display-name>harvester</display-name>
+		<servlet-name>harvester</servlet-name>
+		<jsp-file>/opendap.jsp</jsp-file>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>harvester</servlet-name>
 		<url-pattern>/harvester/*</url-pattern>
 	</servlet-mapping>  
-	 -->
+	  -->
 </web-app>
