@@ -18,10 +18,10 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
 
 war{
-	baseName = 'harvester'
+	baseName = 'collector'
 }
 jar {
-	baseName = 'harvester'
+	baseName = 'collector'
 	//version = '0.0.1-SNAPSHOT'
 }
 

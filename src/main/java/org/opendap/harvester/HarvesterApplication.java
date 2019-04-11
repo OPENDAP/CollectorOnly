@@ -16,6 +16,9 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
+//added Spring Boot ServletInitializer so that './gradew war' command 
+//	can build working war file  
+
 @SpringBootApplication
 @EnableScheduling
 @EnableMongoRepositories
