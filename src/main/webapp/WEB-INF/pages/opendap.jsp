@@ -21,7 +21,7 @@
 					<td>
 						<!-- <a href="/harvester/logLines?hyraxInstanceName=${listItem}"> -->
 						<!-- <a href="/healthcheck/server?hyraxInstanceName=${listItem}"> -->
-						<a href="/server?hyraxInstanceName=${listItem}">
+						<a href="./server?hyraxInstanceName=${listItem}">
 							<c:out value="${listItem}"></c:out>
 						</a>
 					</td>
@@ -32,7 +32,7 @@
 	<div id="Buttons">
 		<div id="AddServerBtn">
 			Add New Sever:
-			<form:form method="POST" action="/NewServerRedirect">
+			<form:form method="POST" action="./NewServerRedirect">
 				<input type="submit" value="Add Server"/>
 			</form:form>
 		</div>

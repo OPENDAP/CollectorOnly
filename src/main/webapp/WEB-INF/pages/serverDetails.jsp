@@ -44,7 +44,7 @@
 				<td><h4>${active}</h4></td>
 			</tr>	
 		</table>
-		<a href="/harvester/logLines?hyraxInstanceName=${name}">
+		<a href="./harvester/logLines?hyraxInstanceName=${name}">
 			Server Access Logs
 		</a>
 	</div>

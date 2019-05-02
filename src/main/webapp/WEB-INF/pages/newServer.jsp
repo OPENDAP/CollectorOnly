@@ -14,7 +14,7 @@
 	we are currently down for maintenance,<br>
 	please try again later.<br> -->
 	<div>
-		<form:form method="POST" action="/AddNewServer">
+		<form:form method="POST" action="./AddNewServer">
 			<table>
 				<tr>
 					<td>*Server URL : </td>
