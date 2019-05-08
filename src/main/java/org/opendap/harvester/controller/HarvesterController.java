@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/harvester")
 public class HarvesterController {
-	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
     /**
      * Autowired automatically inject some of the HyraxInstanceRegisterService implementations to this
      * class field. It will happen on class instantiating stage.
@@ -48,29 +48,24 @@ public class HarvesterController {
     @ResponseBody
     public HyraxInstanceDto registerGet(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
     // 1/22/19 - SBL - modified method to include if/else statement and 'updatePing' call
-    	//System.out.println("\n1)\tGet Method :"); // <---
-    	log.info("/reg.1) Get Method :"); // <---
+    	//log.info("/reg.1/3) registerGet() method entry ..."); // <---
     	HyraxInstance register;
     	if (hyraxInstanceService.findHyraxInstanceByName(registerModel.getServerUrl())!= null) {
-    		//System.out.println("2)\t\tHyrax found => update called:"); // <---
-    		log.info("/reg.2) Hyrax found => update called:"); // <---
+    		//log.info("/reg.2/3) Hyrax found => update called ..."); // <---
     		register = hyraxInstanceService.updatePing(registerModel.getServerUrl(), registerModel.getPing(), hyraxInstanceService);
-    		//System.out.println("3)\t\tHyrax server updated:"); // <---
-    		log.info("/reg.3) Hyrax server updated:"); // <---
+    		//log.info("/reg.3/3) Hyrax server updated, returning << :"); // <---
     		return hyraxInstanceService.buildDto(register);
     	}
     	else {
     	// Calling service method and returning result
-    		//System.out.println("2)\t\tHyrax not found => add server called:"); // <---
-    		log.info("/reg.2) Hyrax not found => add server called:"); // <---
+    		//log.info("/reg.2/3) Hyrax not found => add server called ..."); // <---
 	        register = hyraxInstanceService.register(
 	                registerModel.getServerUrl(),
 	                StringUtils.isEmpty(registerModel.getReporterUrl()) ?
 	                        registerModel.getServerUrl() : registerModel.getReporterUrl(),
 	                registerModel.getPing(),
 	                registerModel.getLog());
-	        //System.out.println("3)\t\tHyrax server added:"); // <---
-	        log.info("/reg.3) Hyrax server added:"); // <---
+	        //log.info("/reg.3/3) Hyrax server added, returning <<"); // <---
 	        return hyraxInstanceService.buildDto(register);
     	}
     }//end register GET

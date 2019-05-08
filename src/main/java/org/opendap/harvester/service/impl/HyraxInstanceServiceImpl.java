@@ -31,7 +31,7 @@ import static org.springframework.util.StringUtils.*;
  */
 @Service
 public class HyraxInstanceServiceImpl implements HyraxInstanceService {
-	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
 
@@ -41,19 +41,19 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     @Override
     public HyraxInstance register(String serverUrl, String reporterUrl, Long ping, int log) throws Exception {
     	
-    	logg.info("register.1) register checkpoint, checking domain and version ..."); // <---
+    	//logg.info("register.1) register checkpoint, checking domain and version ..."); // <---
         String hyraxVersion = checkDomainNameAndGetVersion(serverUrl);
         
-        logg.info("register.2) good domain, hyrax version : "+hyraxVersion); // <---
+        //logg.info("register.2) good domain, hyrax version : "+hyraxVersion); // <---
         if (isEmpty(hyraxVersion)){
-        	logg.info("register.2e) bad domain or hyrax version"); // <---
+        	//logg.info("register.2e) bad domain or hyrax version"); // <---
             throw new IllegalStateException("Bad version, or can not get version of hyrax instance");
         }
         
-        logg.info("register.3) checking reporter - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.3) checking reporter - /!\\ DISABLED /!\\"); // <---
         //checkReporter(reporterUrl);
         
-        logg.info("register.4) reporter passed, saving server ..."); // <---
+        //logg.info("register.4) reporter passed, saving server ..."); // <---
         hyraxInstanceRepository.streamByName(serverUrl)
                 .filter(HyraxInstance::getActive)
                 .forEach(a -> {
@@ -61,11 +61,11 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                     hyraxInstanceRepository.save(a);
                 });
         
-        logg.info("register.5) server saved, retrieving default ping - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.5) server saved, retrieving default ping - /!\\ DISABLED /!\\"); // <---
         //Long reporterDefaultPing = getReporterDefaultPing(reporterUrl);
         Long reporterDefaultPing = ping;
 
-        logg.info("register.6) default ping retrieved, building hyrax instance ..."); // <---
+        //logg.info("register.6) default ping retrieved, building hyrax instance ..."); // <---
         HyraxInstance hyraxInstance = HyraxInstance.builder()
                 .name(serverUrl)
                 .reporterUrl(reporterUrl)
@@ -75,7 +75,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .registrationTime(LocalDateTime.now())
                 .active(true)
                 .build();
-        logg.info("register.7) hyrax instance built, returning ..."); // <---
+        //logg.info("register.7) hyrax instance built, returning ..."); // <---
         return hyraxInstanceRepository.save(hyraxInstance);
     }
 
@@ -110,14 +110,14 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     }
 
     private void checkReporter(String server) throws Exception {
-    	logg.info("checkR.1) checkReporter() entry, calling reporter ..."); // <---
+    	//logg.info("checkR.1) checkReporter() entry, calling reporter ..."); // <---
         ResponseEntity<String> entity = restTemplate.getForEntity(new URI(server + "/healthcheck"), String.class);
-        logg.info("checkR.2) reporter returned : "+entity.getStatusCode()); // <---
+        //logg.info("checkR.2) reporter returned : "+entity.getStatusCode()); // <---
         if (!entity.getStatusCode().is2xxSuccessful()){
-        	logg.info("checkR.2e) failure"); // <---
+        	//logg.info("checkR.2e) failure"); // <---
             throw new IllegalStateException("Can not find reporter on this Hyrax Instance");
         }
-        logg.info("checkR.3) returning "); 
+        //logg.info("checkR.3) returning "); 
     }
 
     private Long getReporterDefaultPing(String server) throws Exception {
@@ -165,4 +165,15 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     public HyraxInstance findHyraxInstanceByName(String hyraxInstanceName) {
         return hyraxInstanceRepository.findByNameAndActiveTrue(hyraxInstanceName);
     }
-}
+
+	
+    @Override
+	public void removeHyraxInstance(String hyraxInstanceId) {
+    // 5/2/19 - SBL - initial code
+    	//logg.info("removeHI.1/2) removeHyraxInstance() entry, calling delete() ...");
+    	//logg.info("removeHI.1.1) id : "+ hyraxInstanceId);
+		hyraxInstanceRepository.delete(hyraxInstanceId);
+		//logg.info("removeHI.2/2) instance deleted, returning <<");
+	}//end removeHyraxInstance()
+    
+}//end class HyraxInstanceServiceImpl

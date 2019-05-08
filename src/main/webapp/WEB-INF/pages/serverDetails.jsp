@@ -46,6 +46,9 @@
 		</table>
 		<a href="./harvester/logLines?hyraxInstanceName=${name}">
 			Server Access Logs
+		</a><br/>
+		<a href="./remove?hyraxInstanceName=${name}">
+			Remove Server
 		</a>
 	</div>
 </body>
