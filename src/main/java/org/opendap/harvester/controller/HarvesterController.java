@@ -52,7 +52,7 @@ public class HarvesterController {
     	HyraxInstance register;
     	if (hyraxInstanceService.findHyraxInstanceByName(registerModel.getServerUrl())!= null) {
     		//log.info("/reg.2/3) Hyrax found => update called ..."); // <---
-    		register = hyraxInstanceService.updatePing(registerModel.getServerUrl(), registerModel.getPing(), hyraxInstanceService);
+    		register = hyraxInstanceService.updatePing(registerModel.getServerUrl(), registerModel.getPing());
     		//log.info("/reg.3/3) Hyrax server updated, returning << :"); // <---
     		return hyraxInstanceService.buildDto(register);
     	}
@@ -71,49 +71,35 @@ public class HarvesterController {
     }//end register GET
     
     /**
-     * registerPost method ...
+     * 
      * @param registerModel
      * @return
      * @throws Exception
-     */
-    // 2/7/19 - SBL - initial code /*
-    //@RequestMapping(path = "/registration", method = RequestMethod.POST)
-    //public String registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
-    	/* TODO fix POST method
-    	 * algorithm - used to save reporter for the first time
-    	 * create new register and uuid for register 
-    	 * add to mongo
-    	 * returns uuid to caller in response
-    	 */
-    	//System.out.println("\n\tPost Method\n\t"+registerModel.toString()+"\n");
+     */ // 
+    /*
+    @RequestMapping(path = "/registration", method = RequestMethod.POST)
+    public UUID registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
+    // 2/7/19 - SBL - initial code 
+    // 5/13/19 - SBL - modified for POST functionality/*
+    	System.out.println("\n\tPost Method\n\t"+registerModel.toString()+"\n");
     	//return registerModel.toString();
-    	/*
-    	HyraxInstance register;
-    	String id = registerModel.getServerUrl(); //Change me!!
-    	if (hyraxInstanceService.findHyraxInstanceByName(registerModel.getServerUrl())!= null) {
-    		register = hyraxInstanceService.updatePing(registerModel.getServerUrl(), registerModel.getPing(), hyraxInstanceService);
-    		return id;
-    	}
-    	else {
-    	// Calling service method and returning result
-	        register = hyraxInstanceService.register(
+    	HyraxInstance register = hyraxInstanceService.register(
 	                registerModel.getServerUrl(),
 	                StringUtils.isEmpty(registerModel.getReporterUrl()) ?
 	                        registerModel.getServerUrl() : registerModel.getReporterUrl(),
 	                registerModel.getPing(),
 	                registerModel.getLog());
-	        id = UUID.randomUUID().toString();
-	        return id;
-    	}
-    	*/
-    //}//end registerPost() */
+    	
+    	return register.getServerUUID();
+    }//end registerPost()    
+    */
     
     /**
      * registerPut method ...
-     */
-    // 4/11/19 - SBL - initial code 
+     */ // 
     /*
     public Boolean registerPut() {
+    // 4/11/19 - SBL - initial code     
     	//TODO code up PUT method
     	return false;
     } //end registerPut() 
@@ -125,10 +111,10 @@ public class HarvesterController {
      * @return
      * @throws Exception
      */
-    // 4/11/19 - SBL - comment
     @RequestMapping(path = "/allHyraxInstances", method = RequestMethod.GET)
     @ResponseBody
     public List<HyraxInstanceDto> allHyraxInstances(
+    // 4/11/19 - SBL - comment
             @RequestParam(defaultValue = "true") Boolean onlyActive)
             throws Exception {
         return hyraxInstanceService.allHyraxInstances(onlyActive)

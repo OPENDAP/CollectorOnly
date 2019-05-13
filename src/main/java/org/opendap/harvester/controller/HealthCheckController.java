@@ -40,7 +40,7 @@ public class HealthCheckController {
     
     @RequestMapping(path = "/healthcheck/server", method = RequestMethod.GET)
     public HyraxInstanceDto displayServerInfo(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
-    	System.out.println("Server ID: "+ hyraxInstanceNameModel.getHyraxInstanceName());
+    	//System.out.println("Server ID: "+ hyraxInstanceNameModel.getHyraxInstanceName());
     	HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
     	return hyraxInstanceService.buildDto(register);
     }

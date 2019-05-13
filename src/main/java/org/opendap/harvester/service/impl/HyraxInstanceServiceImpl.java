@@ -21,6 +21,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.springframework.util.StringUtils.*;
@@ -53,17 +54,23 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         //logg.info("register.3) checking reporter - /!\\ DISABLED /!\\"); // <---
         //checkReporter(reporterUrl);
         
-        //logg.info("register.4) reporter passed, saving server ..."); // <---
+        //logg.info("register.4) reporter passed, saving server - /!\\ DISABLED /!\\"); // <---
+        
+        /* 
+        // 5/13/19 - SBL - removed redundant code
         hyraxInstanceRepository.streamByName(serverUrl)
                 .filter(HyraxInstance::getActive)
                 .forEach(a -> {
                     a.setActive(false);
                     hyraxInstanceRepository.save(a);
                 });
+        */
         
         //logg.info("register.5) server saved, retrieving default ping - /!\\ DISABLED /!\\"); // <---
         //Long reporterDefaultPing = getReporterDefaultPing(reporterUrl);
         Long reporterDefaultPing = ping;
+        
+        //UUID serverId = UUID.randomUUID(); // << << uncomment me later << << 
 
         //logg.info("register.6) default ping retrieved, building hyrax instance ..."); // <---
         HyraxInstance hyraxInstance = HyraxInstance.builder()
@@ -73,7 +80,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .ping(Math.min(ping == null ? Long.MAX_VALUE : ping, reporterDefaultPing))
                 .versionNumber(hyraxVersion)
                 .registrationTime(LocalDateTime.now())
-                .active(true)
+                .active(true)//.serverUUID(serverId) // << << uncomment me later << <<
                 .build();
         //logg.info("register.7) hyrax instance built, returning ..."); // <---
         return hyraxInstanceRepository.save(hyraxInstance);
@@ -93,12 +100,12 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     /**
      * SBL - gets hyraxInstance from DB and checks if ping needs to be updated
      * if no update needed, just returns current hyraxInstance
-     * 
-     * 1/22/18 - SBL - initial code
+     * @return 
      */
     @Override
-    public HyraxInstance updatePing(String serverUrl, long ping, HyraxInstanceService hyraxInstanceService) {
-    	HyraxInstance hyraxInstance = hyraxInstanceService.findHyraxInstanceByName(serverUrl);
+    public HyraxInstance updatePing(String serverUrl, long ping) {
+    // 1/22/18 - SBL - initial code
+    	HyraxInstance hyraxInstance = findHyraxInstanceByName(serverUrl);
     	if (hyraxInstance.getPing() != ping) {
     		hyraxInstance.setPing(ping);
     		return hyraxInstanceRepository.save(hyraxInstance);
@@ -124,7 +131,6 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         ResponseEntity<Long> entity = restTemplate.getForEntity(new URI(server + "/defaultPing"), Long.class);
         return entity.getBody();
     }
-
 
     private String checkDomainNameAndGetVersion(String server) throws Exception {
         String xmlString = restTemplate.getForObject(new URI(server + "/version"), String.class);
@@ -166,7 +172,6 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         return hyraxInstanceRepository.findByNameAndActiveTrue(hyraxInstanceName);
     }
 
-	
     @Override
 	public void removeHyraxInstance(String hyraxInstanceId) {
     // 5/2/19 - SBL - initial code
