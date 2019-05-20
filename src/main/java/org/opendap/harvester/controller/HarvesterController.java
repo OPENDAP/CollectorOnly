@@ -78,6 +78,7 @@ public class HarvesterController {
      */ // 
     /*
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
+    @ResponseBody
     public UUID registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
     // 2/7/19 - SBL - initial code 
     // 5/13/19 - SBL - modified for POST functionality/*
@@ -98,10 +99,13 @@ public class HarvesterController {
      * registerPut method ...
      */ // 
     /*
-    public Boolean registerPut() {
-    // 4/11/19 - SBL - initial code     
-    	//TODO code up PUT method
-    	return false;
+    @RequestMapping(path = "/registration", method = RequestMethod.PUT)
+    @ResponseBody
+    public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {
+    // 4/11/19 - SBL - initial code
+    // 5/20/19 - SBL - modified for PUT functionality    
+    	HyraxInstance updated = hyraxInstanceService.updateInstance(updateModel);
+    	return updated;
     } //end registerPut() 
     */ 
     

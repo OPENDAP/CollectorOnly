@@ -55,7 +55,6 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         //checkReporter(reporterUrl);
         
         //logg.info("register.4) reporter passed, saving server - /!\\ DISABLED /!\\"); // <---
-        
         /* 
         // 5/13/19 - SBL - removed redundant code
         hyraxInstanceRepository.streamByName(serverUrl)
@@ -113,8 +112,32 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     	else {
     		return hyraxInstance;
     	 }
-
-    }
+    }// end updatePing()
+    
+    /**
+     * 
+     * @param updateModel
+     * @return
+     */ // 
+    /*
+    @Override
+    public HyraxInstance updateHyraxInstance(UpdateModel updateModel){
+    // 5/20/19 - SBL - initial code
+    
+    	HyraxInstance hyraxInstance = findHyraxInstanceByName(updateModel.getServerUrl());
+    	
+    	if(hyraxInstance.getPing() != updateModel.getPing()){
+    		hyraxInstance.setPing(updateModel.getPing());
+    	}// end if
+    	
+    	if(hyraxInstance.getLog() != updateModel.getLog()){
+    		hyraxInstance.setLog(updateModel.getLog());
+    	}// end if 
+    	
+    	return hyraxInstanceRepository.save(hyraxInstance);
+    	
+    }// end updateHyraxInstance() //     
+    */
 
     private void checkReporter(String server) throws Exception {
     	//logg.info("checkR.1) checkReporter() entry, calling reporter ..."); // <---
