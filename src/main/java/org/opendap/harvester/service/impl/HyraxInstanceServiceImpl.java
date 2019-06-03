@@ -41,20 +41,19 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
 
     @Override
     public HyraxInstance register(String serverUrl, String reporterUrl, Long ping, int log) throws Exception {
-    	
-    	//logg.info("register.1) register checkpoint, checking domain and version ..."); // <---
+    	//logg.info("register.1/7) register checkpoint, checking domain and version ..."); // <---
         String hyraxVersion = checkDomainNameAndGetVersion(serverUrl);
         
-        //logg.info("register.2) good domain, hyrax version : "+hyraxVersion); // <---
+        //logg.info("register.2/7) good domain, hyrax version : "+hyraxVersion); // <---
         if (isEmpty(hyraxVersion)){
         	//logg.info("register.2e) bad domain or hyrax version"); // <---
             throw new IllegalStateException("Bad version, or can not get version of hyrax instance");
         }
         
-        //logg.info("register.3) checking reporter - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.3/7) checking reporter - /!\\ DISABLED /!\\"); // <---
         //checkReporter(reporterUrl);
         
-        //logg.info("register.4) reporter passed, saving server - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.4/7) reporter passed, saving server - /!\\ DISABLED /!\\"); // <---
         /* 
         // 5/13/19 - SBL - removed redundant code
         hyraxInstanceRepository.streamByName(serverUrl)
@@ -65,13 +64,13 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 });
         */
         
-        //logg.info("register.5) server saved, retrieving default ping - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.5/7) server saved, retrieving default ping - /!\\ DISABLED /!\\"); // <---
         //Long reporterDefaultPing = getReporterDefaultPing(reporterUrl);
         Long reporterDefaultPing = ping;
         
         //UUID serverId = UUID.randomUUID(); // << << uncomment me later << << 
 
-        //logg.info("register.6) default ping retrieved, building hyrax instance ..."); // <---
+        //logg.info("register.6/7) default ping retrieved, building hyrax instance ..."); // <---
         HyraxInstance hyraxInstance = HyraxInstance.builder()
                 .name(serverUrl)
                 .reporterUrl(reporterUrl)
@@ -79,9 +78,9 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .ping(Math.min(ping == null ? Long.MAX_VALUE : ping, reporterDefaultPing))
                 .versionNumber(hyraxVersion)
                 .registrationTime(LocalDateTime.now())
-                .active(true)//.serverUUID(serverId) // << << uncomment me later << <<
+                .active(true)//                .serverUUID(serverId) // << << uncomment me later << <<
                 .build();
-        //logg.info("register.7) hyrax instance built, returning ..."); // <---
+        //logg.info("register.7/7) hyrax instance built, returning <<"); // <---
         return hyraxInstanceRepository.save(hyraxInstance);
     }
 
@@ -147,7 +146,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         	//logg.info("checkR.2e) failure"); // <---
             throw new IllegalStateException("Can not find reporter on this Hyrax Instance");
         }
-        //logg.info("checkR.3) returning "); 
+        //logg.info("checkR.3) returning <<"); 
     }
 
     private Long getReporterDefaultPing(String server) throws Exception {
