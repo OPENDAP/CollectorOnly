@@ -32,7 +32,7 @@ import static org.springframework.util.StringUtils.*;
  */
 @Service
 public class HyraxInstanceServiceImpl implements HyraxInstanceService {
-	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
 
@@ -68,7 +68,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         //Long reporterDefaultPing = getReporterDefaultPing(reporterUrl);
         Long reporterDefaultPing = ping;
         
-        //UUID serverId = UUID.randomUUID(); // << << uncomment me later << << 
+        UUID serverId = UUID.randomUUID(); // << << uncomment me later << << 
 
         //logg.info("register.6/7) default ping retrieved, building hyrax instance ..."); // <---
         HyraxInstance hyraxInstance = HyraxInstance.builder()
@@ -78,9 +78,11 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .ping(Math.min(ping == null ? Long.MAX_VALUE : ping, reporterDefaultPing))
                 .versionNumber(hyraxVersion)
                 .registrationTime(LocalDateTime.now())
-                .active(true)//                .serverUUID(serverId) // << << uncomment me later << <<
+                .active(true)//                
+                .serverUUID(serverId) // << << uncomment me later << <<
                 .build();
-        //logg.info("register.7/7) hyrax instance built, returning <<"); // <---
+        logg.info("register.6.1/7) UUID : "+serverId); // <---
+        logg.info("register.7/7) hyrax instance built, returning <<"); // <---
         return hyraxInstanceRepository.save(hyraxInstance);
     }
 
@@ -178,6 +180,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .versionNumber(hyraxInstance.getVersionNumber())
                 .registrationTime(String.valueOf(hyraxInstance.getRegistrationTime()))
                 .lastAccessTime(String.valueOf(hyraxInstance.getLastAccessTime()))
+                .serverUUID(hyraxInstance.getServerUUID())
                 .active(hyraxInstance.getActive())
                 .build();
     }

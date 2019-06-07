@@ -12,6 +12,10 @@
 	<div id="Details">
 		<table>
 			<tr>
+				<td><h3>ID: </h3></td>
+				<td><h4>${serverId}</h4></td>
+			</tr>
+			<tr>
 				<td><h3>Server URL: </h3></td>
 				<td><h4>${serverUrl}</h4></td>
 			</tr>

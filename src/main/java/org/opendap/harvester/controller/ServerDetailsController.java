@@ -37,9 +37,21 @@ public class ServerDetailsController{
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("serverDetails");
 		
+		long ping = register.getPing();
+		long mins = 0, hours = 0, days = 0;
+		mins = ping/60;
+		hours = mins/60;
+		days = hours/24;
+		String s;
+		if(days <= 0 && hours <= 0) {s = ping +" - "+ mins +"m";}
+		else if(days <= 0) {s = ping +" - "+ hours +"h "+ mins +"m";}
+		//else if(hours <= 0) {s = ping +" - "+ mins +"m";}
+		else {s = ping +" - "+ days +"d "+ hours +"h "+ mins+"m";}
+		
+		mav.addObject("serverId", register.getServerUUID());
 		mav.addObject("serverUrl", register.getName());
 		mav.addObject("reporterUrl", register.getReporterUrl());
-		mav.addObject("ping", register.getPing());
+		mav.addObject("ping", s);
 		mav.addObject("log", register.getLog());
 		mav.addObject("version", register.getVersionNumber());
 		mav.addObject("registrationTime", register.getRegistrationTime());

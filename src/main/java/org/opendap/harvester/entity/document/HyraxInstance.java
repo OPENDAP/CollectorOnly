@@ -32,6 +32,6 @@ public class HyraxInstance extends BaseEntity {
     private LocalDateTime lastAccessTime;
     @Getter @Setter
     private Boolean active = false;
-    //@Getter @Setter
-    //private UUID serverUUID;
+    @Getter @Setter
+    private UUID serverUUID;
 }
