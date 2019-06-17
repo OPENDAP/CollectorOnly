@@ -37,21 +37,10 @@ public class ServerDetailsController{
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("serverDetails");
 		
-		long ping = register.getPing();
-		long mins = 0, hours = 0, days = 0;
-		mins = ping/60;
-		hours = mins/60;
-		days = hours/24;
-		String s;
-		if(days <= 0 && hours <= 0) {s = ping +" - "+ mins +"m";}
-		else if(days <= 0) {s = ping +" - "+ hours +"h "+ mins +"m";}
-		//else if(hours <= 0) {s = ping +" - "+ mins +"m";}
-		else {s = ping +" - "+ days +"d "+ hours +"h "+ mins+"m";}
-		
 		mav.addObject("serverId", register.getServerUUID());
 		mav.addObject("serverUrl", register.getName());
 		mav.addObject("reporterUrl", register.getReporterUrl());
-		mav.addObject("ping", s);
+		mav.addObject("ping", createInterval(register.getPing()));
 		mav.addObject("log", register.getLog());
 		mav.addObject("version", register.getVersionNumber());
 		mav.addObject("registrationTime", register.getRegistrationTime());
@@ -61,6 +50,47 @@ public class ServerDetailsController{
 		
 		return mav;
 	}
+	
+	private String createInterval(long ping) {
+		String s = "";
+		
+		long mins, hours, days;
+		mins = ping/60;
+		hours = mins/60;
+		days = hours/24;
+		
+		if(days <= 0) {
+			
+			if (hours <= 0) {
+				s = ping +" - "+ mins +"m";
+			}// *m
+			else if ((mins % 60) == 0) {
+				s = ping +" - "+ hours +"h";
+			}// *h
+			else {
+				mins = mins % 60;
+				s = ping +" - "+ hours +"h "+ mins +"m";
+			}// *h *m
+		}
+		else {
+			mins = mins % 60;
+			hours = hours % 24;
+			if ((hours == 0)&&(mins == 0)) {
+				s = ping +" - "+ days +"d";
+			}// *d
+			else if(hours == 0) {
+				s = ping +" - "+ days +"d "+ mins +"m";
+			}// *d *m
+			else if(mins == 0) {
+				s = ping +" - "+ days +"d "+ hours +"h";
+			}// *d *h
+			else {
+				s = ping +" - "+ days +"d "+ hours +"h "+ mins +"m";
+			}// *d *h *m
+		}
+		
+		return s;
+	}//end createInterval()
 	
 	/**
 	 * 
@@ -80,5 +110,5 @@ public class ServerDetailsController{
 		hyraxInstanceService.removeHyraxInstance(hyraxInstanceId);
 		//log.info("/remove.5/5) hyrax removed, returning <<");
 		return new ModelAndView("redirect:/opendap");
-	}//end removeReporter() 
+	}//end removeReporter()
 }//end class ServerDetailsController
