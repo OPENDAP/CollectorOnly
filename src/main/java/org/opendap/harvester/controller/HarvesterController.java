@@ -28,8 +28,9 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/harvester")
 public class HarvesterController {
-	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
-    /**
+	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+    
+	/**
      * Autowired automatically inject some of the HyraxInstanceRegisterService implementations to this
      * class field. It will happen on class instantiating stage.
      * After that it can be used in this class like service endpoint.
@@ -94,6 +95,13 @@ public class HarvesterController {
     	return register.getServerUUID();//.toString();
     }//end registerPost()
     */
+    
+    @RequestMapping(path = "/registration", method = RequestMethod.POST)
+    @ResponseBody
+    public void registerPost() throws Exception {
+    	log.info("/regPOST.1/2) registration entry");
+    	log.info("/regPOST.2/2) returing <<");
+    }
     
     /**
      * registerPut method ...
