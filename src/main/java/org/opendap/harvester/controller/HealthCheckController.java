@@ -29,18 +29,11 @@ public class HealthCheckController {
     public String healthCheck(){
         return "Application is working! Version = " + harvesterVersion;
     }
-
-    /* 2/12/19 - SBL - little bit of testing
-    @RequestMapping(path = "/healthcheck/{serverId}", method = RequestMethod.GET)
-    public HyraxInstanceDto displayServerInfo(@PathVariable String serverId) {
-    	System.out.println("Server ID: "+serverId);
-    	HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(serverId);
-    	return hyraxInstanceService.buildDto(register);
-    }*/
     
+    // not sure if this method is ever used or would have a reason to be used
+    // CHECKME determine if method is needed. sbl 7.2.19
     @RequestMapping(path = "/healthcheck/server", method = RequestMethod.GET)
     public HyraxInstanceDto displayServerInfo(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
-    	//System.out.println("Server ID: "+ hyraxInstanceNameModel.getHyraxInstanceName());
     	HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
     	return hyraxInstanceService.buildDto(register);
     }

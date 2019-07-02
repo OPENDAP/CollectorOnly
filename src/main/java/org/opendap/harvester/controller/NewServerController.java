@@ -23,7 +23,6 @@ public class NewServerController {
 	 * access method for the newServer.jsp page
 	 * @return ModelAndView object to the New Server page
 	 * 
-	 * 12/19/18 - SBL - Initial code
 	 */
 	@RequestMapping(path = "/newServer", method = RequestMethod.GET)
 	public ModelAndView pageAccess(){
@@ -39,7 +38,6 @@ public class NewServerController {
 	 * @param log - 
 	 * @return - redirection to registration method
 	 * 
-	 * 12/26/18 - SBL - initial code
 	 */
 	@RequestMapping(path="/AddNewServer", method = RequestMethod.POST)
 	public ModelAndView addNewServer(@RequestParam String serverUrl, 

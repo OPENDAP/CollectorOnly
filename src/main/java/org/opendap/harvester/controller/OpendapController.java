@@ -31,11 +31,6 @@ public class OpendapController{
 	 * access method for the opendap.jsp page
 	 * @return ModelAndView object to the Opendap home page
 	 * 
-	 * 11/15/18 - SBL - Initial code
-	 * 12/19/18 - SBL - Modified method to retrieve list of all hyrax instances,
-	 * 		take information and filters hyrax instances names out,
-	 * 		then passes names as an array to ModelAndView object to 
-	 * 			display as list on page
 	 */
 	@RequestMapping(value="/opendap", method = RequestMethod.GET)
 	public ModelAndView opendap() {
@@ -44,7 +39,6 @@ public class OpendapController{
 		
 		String str = "OPENDAP Collector Home";
 		mav.addObject("message", str);
-		
 		
 		List<HyraxInstanceDto> list = hyraxInstanceService.allHyraxInstances(true)
 				.map(hyraxInstanceService::buildDto)
@@ -55,24 +49,21 @@ public class OpendapController{
 		for(HyraxInstanceDto hid : list){
 			nameList[index] = hid.getName();
 			index++;
-		}
-		
-		//String[] nameList = new String[] {"siteOne","siteTwo","siteThree","siteFour","siteFive"};
+		}//end for loop
 		
 		mav.addObject("items", nameList);
 		
 		return mav;
-	}
+	}//end opendap()
 	
 	/**
 	 * handles the 'New Server' button click and redirects to new server page
 	 * @return ModelAndView object of New Server page
 	 * 
-	 * 12/19/18 - SBL - Initial Code
 	 */
 	@RequestMapping(value="/NewServerRedirect", method=RequestMethod.POST)
 	public ModelAndView newServerRedirect(){
 		return new ModelAndView("redirect:/newServer");
-	}
+	}//end newServerRedirect()
 	
 }

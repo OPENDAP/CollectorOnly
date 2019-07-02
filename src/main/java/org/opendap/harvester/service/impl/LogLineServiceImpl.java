@@ -63,8 +63,6 @@ public class LogLineServiceImpl implements LogLineService {
 
 	@Override
 	public void removeLogLines(String hyraxInstanceId) {
-	// 5/2/19 - SBL - initial code
-	// 5/8/19 - SBL - changed function to only query relevant log lines for efficiency 
 		//logg.info("removeLL.1/3) removeLogLines() entry, finding log lines ...");
 		List<LogLine> logLines = logLineRepository.streamByHyraxInstanceId(hyraxInstanceId).collect(Collectors.toList());
 		//logg.info("removeLL.2/3) log lines found, entering forloop ...");
