@@ -9,17 +9,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
+//added Spring Boot ServletInitializer so that './gradew war' command 
+//	can build working war file  
+
 @SpringBootApplication
 @EnableScheduling
 @EnableMongoRepositories
-public class HarvesterApplication {
+public class HarvesterApplication extends SpringBootServletInitializer {
 	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
 
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(HarvesterApplication.class);
+	}
     /*
      * Enable this if you want to have both http and https connectors in embedded
      * tomcat by Spring Boot

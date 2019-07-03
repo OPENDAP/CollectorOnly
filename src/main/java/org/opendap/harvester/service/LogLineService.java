@@ -1,6 +1,5 @@
 package org.opendap.harvester.service;
 
-import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.document.LogLine;
 import org.opendap.harvester.entity.dto.LogLineDto;
 
@@ -11,4 +10,5 @@ public interface LogLineService {
     List<LogLineDto> findLogLines(String hyraxInstanceId);
     String findLogLinesAsString(String hyraxInstanceId);
     LogLineDto buildDto(LogLine logLine);
+    void removeLogLines(String hyraxInstanceId);
 }

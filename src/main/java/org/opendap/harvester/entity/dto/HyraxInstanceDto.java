@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 public class HyraxInstanceDto {
@@ -27,4 +28,6 @@ public class HyraxInstanceDto {
     private String lastAccessTime;
     @Getter @Setter
     private Boolean active = false;
+    @Getter @Setter
+    private UUID serverUUID;
 }

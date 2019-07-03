@@ -12,4 +12,5 @@ public interface HyraxInstanceRepository extends MongoRepository<HyraxInstance, 
     Stream<HyraxInstance> streamByActiveTrue();
     HyraxInstance findByIdAndActiveTrue(String id);
     HyraxInstance findByNameAndActiveTrue(String name);
+    //TODO add findByUUIDAndActiveTrue method. sbl 7.2.19
 }
