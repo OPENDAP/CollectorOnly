@@ -51,6 +51,9 @@
 		<a href="./harvester/logLines?hyraxInstanceName=${name}">
 			Server Access Logs
 		</a><br/>
+		<a href="./repull?hyraxInstanceName=${name}">
+			Clear and Re-Pull Server Logs
+		</a><br/>
 		<a href="./remove?hyraxInstanceName=${name}">
 			Remove Server
 		</a>

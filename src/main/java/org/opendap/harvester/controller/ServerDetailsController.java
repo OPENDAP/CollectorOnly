@@ -1,11 +1,16 @@
 package org.opendap.harvester.controller;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import javax.validation.Valid;
 
 import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.entity.document.HyraxInstance;
+import org.opendap.harvester.entity.dto.LogDataDto;
 import org.opendap.harvester.entity.dto.model.HyraxInstanceNameModel;
 import org.opendap.harvester.service.HyraxInstanceService;
+import org.opendap.harvester.service.LogCollectorService;
 import org.opendap.harvester.service.LogLineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +30,9 @@ public class ServerDetailsController{
 	
 	@Autowired
 	private LogLineService logLineService;
+	
+	@Autowired
+	private LogCollectorService logCollectorService;
 	
 	/**
 	 * 
@@ -111,4 +119,23 @@ public class ServerDetailsController{
 		//log.info("/remove.5/5) hyrax removed, returning <<");
 		return new ModelAndView("redirect:/opendap");
 	}//end removeReporter()
+	
+	/**
+	 * 
+	 */
+	@RequestMapping(value="/repull", method = RequestMethod.GET)
+	public ModelAndView repullReporterLogs(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
+		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
+		String hyraxInstanceId = register.getId();
+		ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
+		
+		logLineService.removeLogLines(hyraxInstanceId);
+		LogDataDto logDataDto = logCollectorService.collectAllLogs(register);
+		hyraxInstanceService.updateLastAccessTime(register, utc.toLocalDateTime());
+        logLineService.addLogLines(hyraxInstanceId, logDataDto.getLines());
+        
+        return new ModelAndView("redirect:/server?hyraxInstanceName="+hyraxInstanceNameModel.getHyraxInstanceName());
+	}//end repullReporterLogs()
+	
+	
 }//end class ServerDetailsController

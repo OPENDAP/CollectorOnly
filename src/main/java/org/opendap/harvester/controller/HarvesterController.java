@@ -80,10 +80,7 @@ public class HarvesterController {
     /*
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
     @ResponseBody
-    public UUID registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
-    // 2/7/19 - SBL - initial code 
-    // 5/13/19 - SBL - modified for POST functionality
-    // 5/31/19 - SBL - halted development for foreseeable future
+    public HyraxInstanceDto registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
        	log.info("/regPOST.1/2) /registration entry, calling register() ...");
     	HyraxInstance register = hyraxInstanceService.register(
 	                registerModel.getServerUrl(),
@@ -92,7 +89,7 @@ public class HarvesterController {
 	                registerModel.getPing(),
 	                registerModel.getLog());
     	log.info("/regPOST.2/2) instance registered, returning <<");
-    	return register.getServerUUID();//.toString();
+    	return hyraxInstanceService.buildDto(register);
     }//end registerPost()
     */
     
@@ -100,7 +97,7 @@ public class HarvesterController {
     @ResponseBody
     public void registerPost() throws Exception {
     	log.info("/regPOST.1/2) registration entry");
-    	log.info("/regPOST.2/2) returing <<");
+    	log.info("/regPOST.2/2) returning <<");
     }
     
     /**
@@ -110,9 +107,6 @@ public class HarvesterController {
     @RequestMapping(path = "/registration", method = RequestMethod.PUT)
     @ResponseBody
     public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {
-    // 4/11/19 - SBL - initial code
-    // 5/20/19 - SBL - modified for PUT functionality
-    // 5/31/19 - SBL - halted development for foreseeable future    
     	HyraxInstance updated = hyraxInstanceService.updateInstance(updateModel);
     	return updated;
     } //end registerPut() 
