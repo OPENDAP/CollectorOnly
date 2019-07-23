@@ -48,7 +48,6 @@ public class HarvesterController {
     @RequestMapping(path = "/registration", method = RequestMethod.GET)
     @ResponseBody
     public HyraxInstanceDto registerGet(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
-    // 1/22/19 - SBL - modified method to include if/else statement and 'updatePing' call
     	//log.info("/reg.1/3) registerGet() method entry ..."); // <---
     	HyraxInstance register;
     	if (hyraxInstanceService.findHyraxInstanceByName(registerModel.getServerUrl())!= null) {
@@ -78,9 +77,12 @@ public class HarvesterController {
      * @throws Exception
      */ //
     /*
+     * TODO implement POST method for registration. sbl 7.2.19
+     * 
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
     @ResponseBody
-    public HyraxInstanceDto registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
+
+    public UUID registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
        	log.info("/regPOST.1/2) /registration entry, calling register() ...");
     	HyraxInstance register = hyraxInstanceService.register(
 	                registerModel.getServerUrl(),
@@ -93,20 +95,31 @@ public class HarvesterController {
     }//end registerPost()
     */
     
+    /*
+     * Test method for checking if POST call works 
+     * to be deleted after POST method is fully implemented
+     * 
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
     @ResponseBody
     public void registerPost() throws Exception {
     	log.info("/regPOST.1/2) registration entry");
     	log.info("/regPOST.2/2) returning <<");
     }
+    */
     
     /**
      * registerPut method ...
      */ // 
     /*
+     * TODO implement PUT method for registration. sbl 7.2.19
+     * 
     @RequestMapping(path = "/registration", method = RequestMethod.PUT)
     @ResponseBody
+<<<<<<< HEAD
     public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {
+=======
+    public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {   
+>>>>>>> master
     	HyraxInstance updated = hyraxInstanceService.updateInstance(updateModel);
     	return updated;
     } //end registerPut() 
@@ -121,7 +134,6 @@ public class HarvesterController {
     @RequestMapping(path = "/allHyraxInstances", method = RequestMethod.GET)
     @ResponseBody
     public List<HyraxInstanceDto> allHyraxInstances(
-    // 4/11/19 - SBL - comment
             @RequestParam(defaultValue = "true") Boolean onlyActive)
             throws Exception {
         return hyraxInstanceService.allHyraxInstances(onlyActive)
