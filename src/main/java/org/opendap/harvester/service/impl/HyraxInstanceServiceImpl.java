@@ -32,7 +32,7 @@ import static org.springframework.util.StringUtils.*;
  */
 @Service
 public class HyraxInstanceServiceImpl implements HyraxInstanceService {
-	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
 
@@ -41,19 +41,21 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
 
     @Override
     public HyraxInstance register(String serverUrl, String reporterUrl, Long ping, int log) throws Exception {
-    	//logg.info("register.1/7) register checkpoint, checking domain and version ..."); // <---
+    	//logg.info("register.1/7) register checkpoint, checking domain and version ...");
         String hyraxVersion = checkDomainNameAndGetVersion(serverUrl);
         
-        //logg.info("register.2/7) good domain, hyrax version : "+hyraxVersion); // <---
+        //logg.info("register.2/7) good domain, hyrax version : "+hyraxVersion);
         if (isEmpty(hyraxVersion)){
-        	//logg.info("register.2e) bad domain or hyrax version"); // <---
+        	//logg.info("register.2e) bad domain or hyrax version");
             throw new IllegalStateException("Bad version, or can not get version of hyrax instance");
         }
         
-        //logg.info("register.3/7) checking reporter - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.3/7) checking reporter - /!\\ DISABLED /!\\"); //
+        //disabled due to method causing race condition. sbl 7.2.19
         //checkReporter(reporterUrl);
         
-        //logg.info("register.4/7) reporter passed, saving server - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.4/7) reporter passed, saving server - /!\\ DISABLED /!\\");
+        //removed due to method incorrectly handling reporter servers updates. sbl 7.2.19
         /* 
         // 5/13/19 - SBL - removed redundant code
         hyraxInstanceRepository.streamByName(serverUrl)
@@ -64,13 +66,14 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 });
         */
         
-        //logg.info("register.5/7) server saved, retrieving default ping - /!\\ DISABLED /!\\"); // <---
+        //logg.info("register.5/7) server saved, retrieving default ping - /!\\ DISABLED /!\\");
+        //disabled due to method causing race condition. sbl 7.2.19
         //Long reporterDefaultPing = getReporterDefaultPing(reporterUrl);
         Long reporterDefaultPing = ping;
         
-        UUID serverId = UUID.randomUUID(); // << << uncomment me later << << 
+        UUID serverId = UUID.randomUUID();
 
-        //logg.info("register.6/7) default ping retrieved, building hyrax instance ..."); // <---
+        //logg.info("register.6/7) default ping retrieved, building hyrax instance ...");
         HyraxInstance hyraxInstance = HyraxInstance.builder()
                 .name(serverUrl)
                 .reporterUrl(reporterUrl)
@@ -79,10 +82,10 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .versionNumber(hyraxVersion)
                 .registrationTime(LocalDateTime.now())
                 .active(true)//                
-                .serverUUID(serverId) // << << uncomment me later << <<
+                .serverUUID(serverId)
                 .build();
-        logg.info("register.6.1/7) UUID : "+serverId); // <---
-        logg.info("register.7/7) hyrax instance built, returning <<"); // <---
+        //logg.info("register.6.1/7) UUID : "+serverId); // <---
+        //logg.info("register.7/7) hyrax instance built, returning <<");
         return hyraxInstanceRepository.save(hyraxInstance);
     }
 
@@ -104,7 +107,6 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
      */
     @Override
     public HyraxInstance updatePing(String serverUrl, long ping) {
-    // 1/22/18 - SBL - initial code
     	HyraxInstance hyraxInstance = findHyraxInstanceByName(serverUrl);
     	if (hyraxInstance.getPing() != ping) {
     		hyraxInstance.setPing(ping);
@@ -119,7 +121,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
      * 
      * @param updateModel
      * @return
-     */ // 
+     */ // TODO implement update method. sbl 7.2.19
     /*
     @Override
     public HyraxInstance updateHyraxInstance(UpdateModel updateModel){
@@ -199,7 +201,6 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
 
     @Override
 	public void removeHyraxInstance(String hyraxInstanceId) {
-    // 5/2/19 - SBL - initial code
     	//logg.info("removeHI.1/2) removeHyraxInstance() entry, calling delete() ...");
     	//logg.info("removeHI.1.1) id : "+ hyraxInstanceId);
 		hyraxInstanceRepository.delete(hyraxInstanceId);

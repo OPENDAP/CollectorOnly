@@ -14,6 +14,6 @@ public interface HyraxInstanceService {
     void updateLastAccessTime(HyraxInstance hi, LocalDateTime localDateTime);
     HyraxInstance findHyraxInstanceByName(String hyraxInstanceName);
     public HyraxInstance updatePing(String serverUrl, long ping);
-    //public HyraxInstance updateHyraxInstance(UpdateModel updateModel);
+    //TODO implement 'public HyraxInstance updateHyraxInstance(UpdateModel updateModel)'. sbl 7.2.19 ;
     public void removeHyraxInstance(String hyraxInstanceId); 
 }

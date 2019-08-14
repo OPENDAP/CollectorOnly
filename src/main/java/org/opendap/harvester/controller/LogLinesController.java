@@ -45,6 +45,4 @@ public class LogLinesController {
         return logLineService.findLogLinesAsString(hyraxInstance.getId());
     }
 
-
-
 }

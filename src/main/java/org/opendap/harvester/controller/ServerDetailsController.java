@@ -57,7 +57,7 @@ public class ServerDetailsController{
 		mav.addObject("name", register.getName());
 		
 		return mav;
-	}
+	}//end serverDetails()
 	
 	private String createInterval(long ping) {
 		String s = "";
@@ -100,6 +100,7 @@ public class ServerDetailsController{
 		return s;
 	}//end createInterval()
 	
+	
 	/**
 	 * 
 	 * @param hyraxInstanceNameModel
@@ -107,7 +108,6 @@ public class ServerDetailsController{
 	 */
 	@RequestMapping(value="/remove", method = RequestMethod.GET)
 	public ModelAndView removeReporter(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
-	// 5/2/19 - SBL - initial code
 		//log.info("/remove.1/5) removeReporter() entry, finding instance ...");
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
 		//log.info("/remove.2/5) found instance, retrieving id ...");
@@ -119,6 +119,7 @@ public class ServerDetailsController{
 		//log.info("/remove.5/5) hyrax removed, returning <<");
 		return new ModelAndView("redirect:/opendap");
 	}//end removeReporter()
+	
 	
 	/**
 	 * 
@@ -136,6 +137,5 @@ public class ServerDetailsController{
         
         return new ModelAndView("redirect:/server?hyraxInstanceName="+hyraxInstanceNameModel.getHyraxInstanceName());
 	}//end repullReporterLogs()
-	
 	
 }//end class ServerDetailsController

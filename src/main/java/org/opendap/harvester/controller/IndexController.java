@@ -19,7 +19,6 @@ public class IndexController {
 	 * method to redirect user to default page
 	 * @return ModelAndView object redirecting to opendap.jsp page
 	 * 
-	 * 12/19/18 - SBL - Initial code
 	 */
 	@RequestMapping("/")
 	public ModelAndView index(){
