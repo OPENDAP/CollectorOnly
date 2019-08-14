@@ -115,6 +115,7 @@ public class HarvesterController {
     @RequestMapping(path = "/registration", method = RequestMethod.PUT)
     @ResponseBody
     public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {   
+
     	HyraxInstance updated = hyraxInstanceService.updateInstance(updateModel);
     	return updated;
     } //end registerPut() 

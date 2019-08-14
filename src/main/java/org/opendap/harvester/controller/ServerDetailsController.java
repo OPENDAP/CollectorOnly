@@ -120,7 +120,7 @@ public class ServerDetailsController{
 		return new ModelAndView("redirect:/opendap");
 	}//end removeReporter()
 	
-	
+
 	/**
 	 * 
 	 */
