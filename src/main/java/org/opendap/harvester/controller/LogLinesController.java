@@ -31,7 +31,14 @@ public class LogLinesController {
         if (hyraxInstance == null){
             return Collections.emptyList();
         }
-        return logLineService.findLogLines(hyraxInstance.getId());
+        
+        if (hyraxInstanceNameModel.isBonus()) {
+        	return logLineService.findLogLines(hyraxInstance.getId());
+        }
+        else {
+        	return logLineService.findLogLines(hyraxInstance.getId(), 500);
+        }
+        
     }
 
     @RequestMapping(path = "/string", method = RequestMethod.GET)
