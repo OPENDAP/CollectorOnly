@@ -55,6 +55,7 @@ public class ServerDetailsController{
 		mav.addObject("lastAccessTime", register.getLastAccessTime());
 		mav.addObject("active", register.getActive());
 		mav.addObject("name", register.getName());
+		mav.addObject("number", logLineService.findNumberLogLines(register.getId()));
 		
 		return mav;
 	}//end serverDetails()
