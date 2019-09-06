@@ -1,11 +1,14 @@
 package org.opendap.harvester.service.impl;
 
+import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.LogDataDto;
 import org.opendap.harvester.service.HyraxInstanceService;
 import org.opendap.harvester.service.LogCollectorService;
 import org.opendap.harvester.service.LogLineService;
 import org.opendap.harvester.service.LogSchedulerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,8 @@ import java.time.ZonedDateTime;
  */
 @Service
 public class LogSchedulerServiceImpl implements LogSchedulerService {
+	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	
     @Autowired
     private HyraxInstanceService hyraxInstanceService;
 
@@ -33,15 +38,19 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
         hyraxInstanceService.allHyraxInstances(true)
                 .filter(this::isTimeToCheck)
                 .forEach(hi -> {
-                    LogDataDto logDataDto;
-                    ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
-                    if (hi.getLastAccessTime() == null){
-                        logDataDto = logCollectorService.collectAllLogs(hi);
-                    } else {
-                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastAccessTime());
-                    }
-                    hyraxInstanceService.updateLastAccessTime(hi, utc.toLocalDateTime());
-                    logLineService.addLogLines(hi.getId(), logDataDto.getLines());
+                	try {
+	                    LogDataDto logDataDto;
+	                    ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
+		                    if (hi.getLastAccessTime() == null){
+		                        logDataDto = logCollectorService.collectAllLogs(hi);
+		                    } else {
+		                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastAccessTime());
+		                    }
+	                    hyraxInstanceService.updateLastAccessTime(hi, utc.toLocalDateTime());
+	                    logLineService.addLogLines(hi.getId(), logDataDto.getLines());
+                    }catch (Error e) {
+			    		log.error("/!\\ LogCollectorServiceImpl.java - checkHyraxInstances() : "+e.getMessage()+" /!\\");
+			    	}
                 });
     }
 
