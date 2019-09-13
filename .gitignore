@@ -75,3 +75,4 @@ hs_err_pid*
 /collector.log
 /.classpath
 /.project
+/.attach_pid23268
