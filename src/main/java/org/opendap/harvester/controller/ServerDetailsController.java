@@ -100,6 +100,7 @@ public class ServerDetailsController{
 		return s;
 	}//end createInterval()
 	
+	
 	/**
 	 * 
 	 * @param hyraxInstanceNameModel

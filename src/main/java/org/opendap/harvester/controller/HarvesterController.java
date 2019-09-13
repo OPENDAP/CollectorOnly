@@ -81,7 +81,6 @@ public class HarvesterController {
      * 
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
     @ResponseBody
-
     public UUID registerPost(@Valid @ModelAttribute RegisterModel registerModel) throws Exception {
        	log.info("/regPOST.1/2) /registration entry, calling register() ...");
     	HyraxInstance register = hyraxInstanceService.register(
@@ -115,11 +114,8 @@ public class HarvesterController {
      * 
     @RequestMapping(path = "/registration", method = RequestMethod.PUT)
     @ResponseBody
-<<<<<<< HEAD
-    public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {
-=======
     public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {   
->>>>>>> master
+
     	HyraxInstance updated = hyraxInstanceService.updateInstance(updateModel);
     	return updated;
     } //end registerPut() 
