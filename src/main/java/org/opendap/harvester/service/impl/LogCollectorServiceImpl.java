@@ -25,13 +25,19 @@
 
 package org.opendap.harvester.service.impl;
 
+import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.LogDataDto;
 import org.opendap.harvester.service.LogCollectorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -43,19 +49,43 @@ import java.time.LocalDateTime;
 
 @Service
 public class LogCollectorServiceImpl implements LogCollectorService {
+	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	
     @Autowired
     private RestTemplate restTemplate;
 
     @Override
     public LogDataDto collectLogs(HyraxInstance hyraxInstance, LocalDateTime since) {
         try {
-            return restTemplate.getForObject(
+        	logg.info("collectLogs 1/4) retrieving log lines from "+hyraxInstance.getName());
+        	LogDataDto logDataDto = restTemplate.getForObject(
                     new URI(hyraxInstance.getReporterUrl() + "/log?since=" + since),
                     LogDataDto.class);
+        	logg.info("collectLogs 1/4) retrieved log lines");
+            /*
+             	return restTemplate.getForObject(
+                    new URI(hyraxInstance.getReporterUrl() + "/log?since=" + since),
+                    LogDataDto.class);
+            */
+        	logg.info("collectLogs 2/4) checking active");
+        	if (!hyraxInstance.getActive()) {
+        		hyraxInstance.setActive(true);
+        	}
+        	logg.info("collectLogs 3/4) returning ...");
+        	return logDataDto;
+        } catch (HttpClientErrorException e){
+        	//TODOs fix collectLogs so that if reporter is offline program will report issue and continue.
+        	logg.info("collectLogs 2e/4) /!\\ ResourceAccessException - collectLogs() : "+e.getMessage()+" /!\\");
+        	hyraxInstance.setActive(false);
+        	logg.info("collectLogs 3e/4) active set to false");
+        	LogDataDto logDataDto = new LogDataDto();
+        	logg.info("collectLogs 4e/4) returning");
+        	return logDataDto;
         } catch (URISyntaxException e) {
+        	logg.info("/!\\ URISyntaxxception - collectLogs() : "+e.getMessage()+" /!\\");
             e.printStackTrace();
             throw new IllegalStateException();
-        }
+        } 
     }
 
     @Override
@@ -65,6 +95,7 @@ public class LogCollectorServiceImpl implements LogCollectorService {
                     new URI(hyraxInstance.getReporterUrl() + "/log"),
                     LogDataDto.class);
         } catch (URISyntaxException e) {
+        	logg.info("/!\\ Error - collectAllLogs() : "+e.getMessage()+" /!\\");
             e.printStackTrace();
             throw new IllegalStateException();
         }

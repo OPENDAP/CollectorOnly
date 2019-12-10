@@ -37,4 +37,14 @@ import java.util.List;
 @Getter @Setter
 public class LogDataDto {
     private List<LogLineDto> lines;
-}
+    
+    public int numOfLines() {
+    	if (lines == null) {
+    		return 0;
+    	}
+    	else {
+    		return lines.size();
+    	}
+    }//numOfLines()
+    
+}//LogDataDto class
