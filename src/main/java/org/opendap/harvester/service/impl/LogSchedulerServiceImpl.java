@@ -48,6 +48,7 @@ import java.time.ZonedDateTime;
 @Service
 public class LogSchedulerServiceImpl implements LogSchedulerService {
 	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+
 	
     @Autowired
     private HyraxInstanceService hyraxInstanceService;
@@ -78,6 +79,7 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
                     }
                 }); //.filter(...).forEach()
     }//checkHyraxinstances()
+
 
     private boolean isTimeToCheck(HyraxInstance hyraxInstance) {
         if (hyraxInstance.getLastAccessTime() == null) {

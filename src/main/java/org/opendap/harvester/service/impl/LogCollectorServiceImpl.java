@@ -50,7 +50,7 @@ import java.time.LocalDateTime;
 @Service
 public class LogCollectorServiceImpl implements LogCollectorService {
 	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
-	
+
     @Autowired
     private RestTemplate restTemplate;
 
