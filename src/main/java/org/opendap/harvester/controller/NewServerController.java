@@ -64,7 +64,7 @@ public class NewServerController {
 	 * @return - redirection to registration method
 	 * 
 	 */
-	@RequestMapping(path="/AddNewServer", method = RequestMethod.POST)
+	@RequestMapping(path="/AddNewServer", method = RequestMethod.POST)//TODO need to switch submit to this in newServer.jsp
 	public ModelAndView addNewServer(@RequestParam String serverUrl, 
 			@RequestParam String reporterUrl, 
 			@RequestParam String ping, 

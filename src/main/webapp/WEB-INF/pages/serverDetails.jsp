@@ -35,7 +35,7 @@
 </head>
 <body>
 	<h1>Server Details</h1>
-	<div id="Details">
+	<div id="Details" style="float:left">
 		<table>
 			<tr>
 				<td><h3>ID: </h3></td>
@@ -66,6 +66,10 @@
 				<td><h4>${version}</h4></td>
 			</tr>
 			<tr>
+				<td><h3>Is Currently Running: </h3></td>
+				<td><h4>${isRunning}</h4></td>
+			</tr>
+			<tr>
 				<td><h3>Date Registered: </h3></td>
 				<td><h4>${registrationTime}</h4></td>
 			</tr>
@@ -74,10 +78,17 @@
 				<td><h4>${lastAccessTime}</h4></td>
 			</tr>
 			<tr>
+				<td><h3>Last Successful Pull: </h3></td>
+				<td><h4>${lastSuccessfulPull}</h4></td>
+			</tr>
+			<tr>
 				<td><h3>Currently Active: </h3></td>
 				<td><h4>${active}</h4></td>
 			</tr>	
 		</table>
+	</div>
+	<div id="Controls" style="float:right;">
+	<h2>Controls</h2>
 		Server Access Logs
 		<a href="./harvester/logLines?hyraxInstanceName=${name}">
 			(Last 500)
@@ -88,9 +99,26 @@
 		<a href="./repull?hyraxInstanceName=${name}">
 			Clear and Re-Pull Server Logs
 		</a><br/>
+		<a href="./toggleActive?hyraxInstanceName=${name}">
+			Toggle Reporter Active Status
+		</a><br/>
 		<a href="./remove?hyraxInstanceName=${name}">
 			Remove Server
 		</a>
+		<br/><br/>
+		Current Error Count : ${errorCount} <br/>
+		<!--
+		Previous Error Counts : <br/>
+		<table>
+			<c:forEach items="${items}" var="listItem">
+				<tr>
+					<td>
+						Error Count: ${listItem}
+					</td>
+				</tr>
+			</c:forEach>
+		</table>
+		-->
 	</div>
 </body>
 </html>

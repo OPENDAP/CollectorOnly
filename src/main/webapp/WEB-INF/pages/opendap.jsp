@@ -43,16 +43,26 @@
 		<h1>${message}</h1>
 	</div>
 	<div id="List" style="float:left;">
-		<table>
+		<table border="1 solid black" style="border:1px solid black; border-collapse:separate; border-spacing: 5px; margin:5px;">
+			<tr>
+				<td>Reporters</td>
+				<td>Accessible</td>
+				<td>Failed Accesses</td>
+				<td>Currently Active</td>
+			</tr>
 			<c:forEach items="${items}" var="listItem">
+			
 				<tr>
 					<td>
 						<!-- <a href="/harvester/logLines?hyraxInstanceName=${listItem}"> -->
 						<!-- <a href="/healthcheck/server?hyraxInstanceName=${listItem}"> -->
-						<a href="./server?hyraxInstanceName=${listItem}">
-							<c:out value="${listItem}"></c:out>
+						<a href="./server?hyraxInstanceName=${listItem[0]}"> 
+							<c:out value="${listItem[0]}"></c:out>
 						</a>
-					</td>
+						</td>
+					<td>${listItem[1]}</td>
+					<td>${listItem[2]}</td>
+					<td>${listItem[3]}</td>
 				</tr>
 			</c:forEach>
 		</table>

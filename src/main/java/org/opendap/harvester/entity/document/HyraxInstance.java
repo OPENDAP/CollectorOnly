@@ -36,6 +36,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Document
@@ -55,6 +56,16 @@ public class HyraxInstance extends BaseEntity {
     private LocalDateTime registrationTime;
     @Getter @Setter
     private LocalDateTime lastAccessTime;
+    @Getter @Setter
+    private LocalDateTime lastSuccessfulPull;
+    @Getter @Setter
+    private LocalDateTime lastErrorTime;
+    @Getter @Setter
+    private Boolean accessible = true;
+    @Getter @Setter
+    private Integer errorCount = 0;
+    @Getter @Setter
+    private List<Integer> previousErrorCount;
     @Getter @Setter
     private Boolean active = false;
     @Getter @Setter

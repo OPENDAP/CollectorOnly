@@ -40,7 +40,7 @@ public class LogDataDto {
     
     public int numOfLines() {
     	if (lines == null) {
-    		return 0;
+    		return -1;
     	}
     	else {
     		return lines.size();

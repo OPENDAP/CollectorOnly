@@ -65,14 +65,19 @@ public class OpendapController{
 		String str = "OPENDAP Collector Home";
 		mav.addObject("message", str);
 		
-		List<HyraxInstanceDto> list = hyraxInstanceService.allHyraxInstances(true)
+		List<HyraxInstanceDto> list = hyraxInstanceService.allHyraxInstances(false)
 				.map(hyraxInstanceService::buildDto)
 				.collect(Collectors.toList());
 				
-		String[] nameList = new String[list.size()];
+		String[][] nameList = new String[list.size()][4];
 		int index = 0;
 		for(HyraxInstanceDto hid : list){
-			nameList[index] = hid.getName();
+			nameList[index][0] = hid.getName();
+			nameList[index][1] = hid.getAccessible().toString();
+			//nameList[index][1] = "placeholder"; max = (a > b) ? a : b;
+			nameList[index][2] = (hid.getErrorCount() != null) ? hid.getErrorCount().toString() : "0";
+			//nameList[index][2] = "placeholder";
+			nameList[index][3] = hid.getActive().toString();
 			index++;
 		}//end for loop
 		

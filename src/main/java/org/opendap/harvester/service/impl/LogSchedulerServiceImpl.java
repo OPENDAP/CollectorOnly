@@ -68,14 +68,37 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
                     ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
                     if (hi.getLastAccessTime() == null){
                         logDataDto = logCollectorService.collectAllLogs(hi);
-                        //logg.info(" /!\\ collectAllLogs called :"+logDataDto.numOfLines()+" num of logs collected /!\\");
+                        //logg.info(" /!\\ collectAllLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");
                     } else {
                         logDataDto = logCollectorService.collectLogs(hi, hi.getLastAccessTime());
-                        //logg.info(" /!\\ collectLogs called :"+logDataDto.numOfLines()+" num of logs collected /!\\");
+                        //logg.info(" /!\\ collectLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");
                     }
+                    
                     hyraxInstanceService.updateLastAccessTime(hi, utc.toLocalDateTime());
-                    if(logDataDto.numOfLines() != 0) {
+                    //logg.info("checkHyraxInstances() updated last access time");
+                    
+                    if(logDataDto.numOfLines() != -1) {
+                    	//logg.info("checkHyraxInstances() num of log lines != -1");
+                    	hyraxInstanceService.updateLastSuccessPullTime(hi, utc.toLocalDateTime());
+                    	//logg.info("checkHyraxInstances() updated last successful pull time");
                     	logLineService.addLogLines(hi.getId(), logDataDto.getLines());
+                    	//logg.info("checkHyraxInstances() log lines added");
+                    	if (hi.getAccessible() == null || !hi.getAccessible()) {
+                    		hyraxInstanceService.updateAccessibleStatus(hi, true);
+                    		//logg.info("checkHyraxInstances() updated accessible status");
+                    		hyraxInstanceService.updateErrorCount(hi, 0, true);
+                    		//logg.info("checkHyraxInstances() updated error count");
+                    		//holding for later date, will be used to track error intervals. SBL 12.12.19
+                    		//hyraxInstanceService.updateErrorCountList(hi);
+                    		//logg.info("checkHyraxInstances() updated error count list");
+                    	}
+                    }
+                    else {
+                    	//logg.info("checkHyraxInstances() error handler");
+                    	hyraxInstanceService.updateAccessibleStatus(hi, false);
+                    	//logg.info("checkHyraxInstances() updated accessible status");
+                    	hyraxInstanceService.updateErrorCount(hi, 1, false);
+                    	//logg.info("checkHyraxInstances() updated error count");
                     }
                 }); //.filter(...).forEach()
     }//checkHyraxinstances()

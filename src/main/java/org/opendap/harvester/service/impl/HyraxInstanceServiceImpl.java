@@ -46,6 +46,8 @@ import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -58,6 +60,7 @@ import static org.springframework.util.StringUtils.*;
 @Service
 public class HyraxInstanceServiceImpl implements HyraxInstanceService {
 	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
 
@@ -142,6 +145,64 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     	 }
     }// end updatePing()
     
+    @Override
+    public void updateActiveStatus(HyraxInstance hi, boolean active) {
+    	//HyraxInstance hyraxInstance = hyraxInstanceRepository.findByIdAndActiveTrue(hi.getId());
+    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
+    	hyraxInstance.setActive(active);
+    	hyraxInstanceRepository.save(hyraxInstance);
+    }//updateActiveStatus()
+    
+    @Override
+    public void updateAccessibleStatus(HyraxInstance hi, boolean accessible) {
+    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
+    	hyraxInstance.setAccessible(accessible);
+    	hyraxInstanceRepository.save(hyraxInstance);
+    }//updateAccessibleStatus()
+    
+    @Override
+    public void updateErrorCount(HyraxInstance hi, int count, boolean override) {
+    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
+    	if (override) {
+    		hyraxInstance.setErrorCount(count);
+    	}
+    	else {
+    		if (hyraxInstance.getErrorCount() == null) {
+    			hyraxInstance.setErrorCount(0 + count);
+    		}
+    		else {
+    			hyraxInstance.setErrorCount(hyraxInstance.getErrorCount() + count);
+    		}
+    		
+    	}
+    	hyraxInstanceRepository.save(hyraxInstance);
+    }//updateErrorCount()
+    
+    @Override
+    public void updateErrorCountList(HyraxInstance hi) {
+    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
+    	//logg.info("updateErrorCountList.1/7) found hyrax instance ");
+    	if(hyraxInstance.getErrorCount() == null) {
+    		//logg.info("updateErrorCountList.2/7) error count was null ");
+    		hyraxInstance.setErrorCount(0);
+    	}
+    	//logg.info("updateErrorCountList.3/7) fixed null ");
+    	if (hyraxInstance.getErrorCount() > 0) {
+    		//logg.info("updateErrorCountList.4/7) error count greater than 0");
+    		List<Integer> list = hyraxInstance.getPreviousErrorCount(); 
+    		if (list == null) {
+    			list = new ArrayList<Integer>();
+    		}
+    		list.add(hyraxInstance.getErrorCount());
+    		hyraxInstance.setPreviousErrorCount(list);
+    		//logg.info("updateErrorCountList.5/7) added to list");
+    		hyraxInstance.setErrorCount(0);
+    		//logg.info("updateErrorCountList.6/7) set count to zero ");
+    	}
+    	//logg.info("updateErrorCountList.1/7) returning ... ");
+    	hyraxInstanceRepository.save(hyraxInstance);
+    }//updateErrorCountList()
+    
     /**
      * 
      * @param updateModel
@@ -209,19 +270,30 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .lastAccessTime(String.valueOf(hyraxInstance.getLastAccessTime()))
                 .serverUUID(hyraxInstance.getServerUUID())
                 .active(hyraxInstance.getActive())
+                .accessible(hyraxInstance.getAccessible())
+                .lastSuccessfulPull(hyraxInstance.getLastSuccessfulPull())
+                .errorCount(hyraxInstance.getErrorCount())
                 .build();
     }
 
     @Override
     public void updateLastAccessTime(HyraxInstance hi, LocalDateTime localDateTime) {
-        HyraxInstance hyraxInstance = hyraxInstanceRepository.findByIdAndActiveTrue(hi.getId());
+        //HyraxInstance hyraxInstance = hyraxInstanceRepository.findByIdAndActiveTrue(hi.getId());
+    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
         hyraxInstance.setLastAccessTime(localDateTime);
+        hyraxInstanceRepository.save(hyraxInstance);
+    }
+    
+    public void updateLastSuccessPullTime(HyraxInstance hi, LocalDateTime localDateTime) {
+    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
+        hyraxInstance.setLastSuccessfulPull(localDateTime);
         hyraxInstanceRepository.save(hyraxInstance);
     }
 
     @Override
     public HyraxInstance findHyraxInstanceByName(String hyraxInstanceName) {
-        return hyraxInstanceRepository.findByNameAndActiveTrue(hyraxInstanceName);
+        //return hyraxInstanceRepository.findByNameAndActiveTrue(hyraxInstanceName);
+        return hyraxInstanceRepository.findByName(hyraxInstanceName);
     }
 
     @Override

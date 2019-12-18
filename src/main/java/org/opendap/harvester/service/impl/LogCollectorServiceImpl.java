@@ -49,7 +49,7 @@ import java.time.LocalDateTime;
 
 @Service
 public class LogCollectorServiceImpl implements LogCollectorService {
-	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
 
     @Autowired
     private RestTemplate restTemplate;
@@ -57,32 +57,26 @@ public class LogCollectorServiceImpl implements LogCollectorService {
     @Override
     public LogDataDto collectLogs(HyraxInstance hyraxInstance, LocalDateTime since) {
         try {
-        	logg.info("collectLogs 1/4) retrieving log lines from "+hyraxInstance.getName());
+        	//logg.info("collectLogs 1/3) retrieving log lines from "+hyraxInstance.getName());
         	LogDataDto logDataDto = restTemplate.getForObject(
                     new URI(hyraxInstance.getReporterUrl() + "/log?since=" + since),
                     LogDataDto.class);
-        	logg.info("collectLogs 1/4) retrieved log lines");
+        	//logg.info("collectLogs 2/3) retrieved log lines");
             /*
              	return restTemplate.getForObject(
                     new URI(hyraxInstance.getReporterUrl() + "/log?since=" + since),
                     LogDataDto.class);
             */
-        	logg.info("collectLogs 2/4) checking active");
-        	if (!hyraxInstance.getActive()) {
-        		hyraxInstance.setActive(true);
-        	}
-        	logg.info("collectLogs 3/4) returning ...");
+        	//logg.info("collectLogs 3/3) returning ...");
         	return logDataDto;
         } catch (HttpClientErrorException e){
         	//TODOs fix collectLogs so that if reporter is offline program will report issue and continue.
-        	logg.info("collectLogs 2e/4) /!\\ ResourceAccessException - collectLogs() : "+e.getMessage()+" /!\\");
-        	hyraxInstance.setActive(false);
-        	logg.info("collectLogs 3e/4) active set to false");
+        	//logg.info("collectLogs 2e/3) /!\\ HttpClientErrorException : "+e.getMessage()+" /!\\");
         	LogDataDto logDataDto = new LogDataDto();
-        	logg.info("collectLogs 4e/4) returning");
+        	//logg.info("collectLogs 3e/3) returning");
         	return logDataDto;
         } catch (URISyntaxException e) {
-        	logg.info("/!\\ URISyntaxxception - collectLogs() : "+e.getMessage()+" /!\\");
+        	//logg.info("/!\\ URISyntaxxception - collectLogs() : "+e.getMessage()+" /!\\");
             e.printStackTrace();
             throw new IllegalStateException();
         } 
@@ -90,12 +84,12 @@ public class LogCollectorServiceImpl implements LogCollectorService {
 
     @Override
     public LogDataDto collectAllLogs(HyraxInstance hyraxInstance) {
-        try {
+        try {//TODO add catch for HttpClientErrorexception
             return restTemplate.getForObject(
                     new URI(hyraxInstance.getReporterUrl() + "/log"),
                     LogDataDto.class);
         } catch (URISyntaxException e) {
-        	logg.info("/!\\ Error - collectAllLogs() : "+e.getMessage()+" /!\\");
+        	//logg.info("/!\\ Error - collectAllLogs() : "+e.getMessage()+" /!\\");
             e.printStackTrace();
             throw new IllegalStateException();
         }

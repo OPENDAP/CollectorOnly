@@ -81,6 +81,10 @@ public class ServerDetailsController{
 		mav.addObject("active", register.getActive());
 		mav.addObject("name", register.getName());
 		mav.addObject("number", logLineService.findNumberLogLines(register.getId()));
+		mav.addObject("isRunning", register.getAccessible());
+		mav.addObject("lastSuccessfulPull", register.getLastSuccessfulPull());
+		mav.addObject("errorCount", register.getErrorCount());
+		//mav.addObject("items", register.getPreviousErrorCount().toArray());
 		
 		return mav;
 	}//end serverDetails()
@@ -159,9 +163,19 @@ public class ServerDetailsController{
 		logLineService.removeLogLines(hyraxInstanceId);
 		LogDataDto logDataDto = logCollectorService.collectAllLogs(register);
 		hyraxInstanceService.updateLastAccessTime(register, utc.toLocalDateTime());
+		hyraxInstanceService.updateLastSuccessPullTime(register, utc.toLocalDateTime());
         logLineService.addLogLines(hyraxInstanceId, logDataDto.getLines());
         
         return new ModelAndView("redirect:/server?hyraxInstanceName="+hyraxInstanceNameModel.getHyraxInstanceName());
 	}//end repullReporterLogs()
+	
+	@RequestMapping(value="/toggleActive", method = RequestMethod.GET)
+	public ModelAndView toggleReporterActive(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
+		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
+		
+		hyraxInstanceService.updateActiveStatus(register, !register.getActive());
+		
+		return new ModelAndView("redirect:/server?hyraxInstanceName="+hyraxInstanceNameModel.getHyraxInstanceName());
+	}
 	
 }//end class ServerDetailsController
