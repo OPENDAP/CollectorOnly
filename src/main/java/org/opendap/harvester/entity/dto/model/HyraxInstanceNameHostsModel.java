@@ -23,20 +23,21 @@
  You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 */
 
-package org.opendap.harvester.service;
+package org.opendap.harvester.entity.dto.model;
 
-import org.opendap.harvester.entity.document.LogLine;
-import org.opendap.harvester.entity.dto.LogLineDto;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.URL;
 
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-public interface LogLineService {
-    void addLogLines(String hyraxInstanceId, List<LogLineDto> logLineDtoList);
-    List<LogLineDto> findLogLines(String hyraxInstanceId);
-    List<LogLineDto> findLogLines(String hyraxInstanceId, int count);
-    List<LogLineDto> findLogLines(String hyraxInstanceId, String monthYear);
-    int findNumberLogLines(String hyraxInstanceId);
-    String findLogLinesAsString(String hyraxInstanceId);
-    LogLineDto buildDto(LogLine logLine);
-    void removeLogLines(String hyraxInstanceId);
+public class HyraxInstanceNameHostsModel {
+	@Getter @Setter
+    @URL
+    @NotBlank
+    private String hyraxInstanceName;
+    @Getter @Setter
+    private String month;
+    @Getter @Setter
+    private String host = "";
 }

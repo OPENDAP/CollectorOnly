@@ -23,19 +23,15 @@
  You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
  -->
 
-<!--
- 11/15/18 - SBL - Initial Code 
- 12/19/18 - SBL - Modified
- -->
- 
+<!-- 2/12/19 - SBL - Initial Code -->
+
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<!-- <link type="text/css" href="<c:url value="/Style.css"/> "/> -->
+<!-- <link rel="stylesheet" type="text/css" href="Style.css"> -->
 <style type="text/css">
 table {
 	border-collapse: collapse;
@@ -52,46 +48,32 @@ th, td {
 }
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>OPENDAP Collector Home</title>
+<title>Server Months</title>
 </head>
 <body>
-	<div id="Header" >
-		<h1>${message}</h1>
-	</div>
-	<div id="List" style="float:left;">
+	<div><h1>Server: ${serverName}</h1></div>
+	<div>
 		<table>
-			<tr>
-				<th>Reporters</th>
-				<th>Accessible</th>
-				<th>Failed Accesses</th>
-				<th>Currently Active</th>
+			<tr> 
+				<th> Month </th> <th> Number of Accesses </th> <th> Bytes Downloaded </th>
 			</tr>
-			<c:forEach items="${items}" var="listItem">
-			
+			<c:forEach items="${tableItems}" var="items">
 				<tr>
+					<td>${items[0]}</td>
 					<td>
-						<!-- <a href="/harvester/logLines?hyraxInstanceName=${listItem}"> -->
-						<!-- <a href="/healthcheck/server?hyraxInstanceName=${listItem}"> -->
-						<a href="./server?hyraxInstanceName=${listItem[0]}"> 
-							<c:out value="${listItem[0]}"></c:out>
+						<a href="./hosts?hyraxInstanceName=${serverName}&month=${items[0]}">
+							${items[1]}
 						</a>
-						</td>
-					<td>${listItem[1]}</td>
-					<td>${listItem[2]}</td>
-					<td>${listItem[3]}</td>
+					</td>
+					<td>
+						<!-- <a href="./dataSize?hyraxInstanceName=${serverName}&month=${items[0]}"> -->
+							${items[2]}
+						<!-- </a> -->
+					</td>
 				</tr>
 			</c:forEach>
 		</table>
-	</div>
-	<div id="Buttons">
-		<div id="AddServerBtn">
-			Add New Sever:
-			<form:form method="POST" action="./NewServerRedirect">
-				<input type="submit" value="Add Server"/>
-			</form:form>
-		</div>
-		<div id="StatisticsBtn">
-		</div>
+		generated in ${time}
 	</div>
 </body>
 </html>

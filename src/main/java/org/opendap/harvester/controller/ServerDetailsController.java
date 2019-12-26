@@ -25,14 +25,22 @@
 
 package org.opendap.harvester.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.validation.Valid;
 
 import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.LogDataDto;
+import org.opendap.harvester.entity.dto.LogLineDto;
+import org.opendap.harvester.entity.dto.model.HyraxInstanceNameHostsModel;
 import org.opendap.harvester.entity.dto.model.HyraxInstanceNameModel;
 import org.opendap.harvester.service.HyraxInstanceService;
 import org.opendap.harvester.service.LogCollectorService;
@@ -44,9 +52,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+//@RequestMapping("/server")
 public class ServerDetailsController{
 	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
 	
@@ -64,7 +74,8 @@ public class ServerDetailsController{
 	 * @param hyraxInstanceNameModel
 	 * @return
 	 */
-	@RequestMapping(value="/server", method = RequestMethod.GET)
+	@RequestMapping(path="/server", method = RequestMethod.GET)
+	@ResponseBody
 	public ModelAndView serverDetails(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
 		ModelAndView mav = new ModelAndView();
@@ -130,20 +141,292 @@ public class ServerDetailsController{
 		return s;
 	}//end createInterval()
 	
+	/**
+	 * 
+	 * @return
+	 */
+	@RequestMapping(path="/months", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView showMonths(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
+		//log.info("showMonths() entered ...");
+		HyraxInstance serverInstance = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("serverMonths");
+		
+		//////////////////////////////////////////////////////////////////////////
+		// COMBING DATA FOR ANALYSIS
+		/////////////////////////////////////////////
+		
+		List<LogLineDto> list = logLineService.findLogLines((serverInstance.getId()));
+		List<String> months = new ArrayList<String>();
+		List<Integer> numHosts = new ArrayList<Integer>();
+		List<Integer> dataSize = new ArrayList<Integer>();
+		int index = 0;
+		
+		long starttime = System.nanoTime();
+		for (LogLineDto lld : list){
+			//log.info(lld.toString());
+			String mmYYYY = convertDateToString(lld.getValues().get("localDateTime"));
+			//log.info(mmYYYY);
+			if (!months.contains(mmYYYY)){
+				months.add(mmYYYY);
+				index = months.indexOf(mmYYYY);
+				numHosts.add(1);
+				
+				int sizeInt = parseSize(lld);
+
+				dataSize.add(sizeInt);
+			}
+			else {
+				numHosts.set(index, numHosts.get(index) + 1);
+
+				int sizeInt = parseSize(lld);
+
+				dataSize.set(index, dataSize.get(index) + sizeInt);
+			}
+		}
+		long endtime = System.nanoTime();
+		
+		//////////////////////////////////////////////////////////////////////////
+		// BUILDING THE ITEMS FOR THE JSP PAGE
+		/////////////////////////////////////////////
+		
+		//log.info("building table items");
+		String[][] tableItems = new String[months.size()][3];
+		
+		index = 0;
+		for (String m : months) {
+			tableItems[index][0] = m;
+			tableItems[index][1] = numHosts.get(index).toString();
+			tableItems[index][2] = dataSize.get(index).toString() +" ("+ readibleSize(dataSize.get(index))+")";
+			index++;
+		}
+		
+		long duration = endtime - starttime;
+		String time =  parseTime(duration);
+		
+		mav.addObject("serverName", serverInstance.getName());
+		mav.addObject("tableItems", tableItems);
+		mav.addObject("time", time);
+		
+		//log.info("returning ...");
+		return mav;
+	}// showMonths()
+	
+	private String parseTime(long duration) {
+		String time;
+		
+		if(duration > 1000000000) {
+			time = (duration / 1000000000) + " seconds";
+		}
+		else if (duration > 1000000) {
+			time = (duration / 1000000) + " milliseconds";
+		}
+		else {
+			time = duration + " nanoseconds";
+		}
+		return time;
+	}
+	
+	private String readibleSize(int size) {
+		int kb = size / 1024;
+		int mb = kb / 1024;
+		int gb = mb / 1024;
+		
+		if(size < 1024) {
+			return size + " bytes";
+		}
+		else if (kb < 1024) {
+			
+			return kb + " kilobytes";
+		}
+		else if (mb < 1024) {
+			
+			return mb + " megabytes";
+		}
+		else {
+			return gb + " gigabyte";
+		}
+	}
+	
+	private Integer parseSize(LogLineDto lld) {
+		String sizeString = lld.getValues().get("size");
+		//log.info("SET - before parse: "+sizeString);
+		int sizeInt;
+		
+		if(sizeString.equals("")) {
+			sizeInt = 0;
+		}
+		else if (sizeString.contains("bytes")) {
+			sizeInt = Integer.parseInt(sizeString.substring(0, sizeString.length() - 5).trim());
+		}
+		else {
+			sizeInt = Integer.parseInt(sizeString.trim());
+		}
+		return sizeInt;
+	}
+	
+	private String convertDateToString(String rubbish) {
+		
+		SimpleDateFormat formatter6=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+		Date date = null;
+		
+		try {
+			date = formatter6.parse(rubbish);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		int month = localDate.getMonthValue();
+		int year = localDate.getYear();
+		String readible = determineMonth(month) +" "+ year;
+		
+		return readible;
+		
+	}//convertDateToString()
+	
+	private String determineMonth(int num) {
+		switch (num) {
+		case 1:
+			return "January";
+		case 2:
+			return "Febuary";
+		case 3:
+			return "March";
+		case 4:
+			return "April";
+		case 5:
+			return "May";
+		case 6:
+			return "June";
+		case 7:
+			return "July";
+		case 8:
+			return "August";
+		case 9:
+			return "September";
+		case 10:
+			return "October";
+		case 11:
+			return "November";
+		case 12:
+			return "December";
+		default:
+			return "NoMonth!!!WeAreAllGonnaDie!!!!";
+		}
+	}
+	
+	@RequestMapping(path="/hosts", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView showHosts(@Valid @ModelAttribute HyraxInstanceNameHostsModel hyraxInstanceNameHostsModel) {
+		
+		//log.info("entering showHosts()");
+		HyraxInstance serverInstance = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameHostsModel.getHyraxInstanceName());
+		String month = hyraxInstanceNameHostsModel.getMonth();
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("serverHosts");
+		
+		List<LogLineDto> list = logLineService.findLogLines(serverInstance.getId(), month);
+		List<String> names = new ArrayList<String>();
+		List<Integer> hostCount = new ArrayList<Integer>();
+		
+		//log.info("showHosts() | making the lists");
+		for (LogLineDto lld : list){
+			String name = lld.getValues().get("host");
+			if (names.contains(name)) {
+				hostCount.set(names.indexOf(name), hostCount.get(names.indexOf(name)) + 1);
+			}
+			else {
+				names.add(name);
+				hostCount.add(1);
+			}
+		}
+		
+		//log.info("showHosts() | making the 2d matrix");
+		String[][] hostItems = new String[names.size()][2];
+		
+		int index = 0;
+		for (String n : names) {
+			hostItems[index][0] = n;
+			hostItems[index][1] = hostCount.get(index).toString();
+			index++;
+		}
+		
+		//log.info("showHosts() | returning ...");
+		mav.addObject("serverName", serverInstance.getName());
+		mav.addObject("month",month);
+		mav.addObject("hostItems", hostItems);
+		
+		
+		return mav;
+	}//showHosts()
+	
+	@RequestMapping(path="/hostDetails", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView showHostDetails(@Valid @ModelAttribute HyraxInstanceNameHostsModel hyraxInstanceNameHostsModel) {
+		
+		HyraxInstance serverInstance = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameHostsModel.getHyraxInstanceName());
+		String month = hyraxInstanceNameHostsModel.getMonth();
+		String host = hyraxInstanceNameHostsModel.getHost();
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("hostDetails");
+		
+		List<LogLineDto> list = logLineService.findLogLines(serverInstance.getId(), month);
+		List<String> resourceIds = new ArrayList<String>();
+		List<String> queries = new ArrayList<String>();
+		List<String> sizes = new ArrayList<String>();
+		List<String> durations = new ArrayList<String>();
+		
+		for (LogLineDto lld : list) {
+			
+			if (lld.getValues().get("host").equals(host)) {
+				resourceIds.add(lld.getValues().get("resourceId"));
+				queries.add(lld.getValues().get("query"));
+				sizes.add(lld.getValues().get("size"));
+				durations.add(lld.getValues().get("duration"));		
+			}//end if
+		}//end foreach
+		
+		String[][] tableItems = new String[sizes.size()][4];
+		int index = 0;
+		
+		for(String s : resourceIds) {
+			tableItems[index][0] = s;
+			tableItems[index][1] = queries.get(index);
+			tableItems[index][2] = sizes.get(index);
+			tableItems[index][3] = durations.get(index);
+			index++;
+		}//end foreach loop
+		
+		mav.addObject("serverName", serverInstance.getName());
+		mav.addObject("month",month);
+		mav.addObject("hostname", host);
+		mav.addObject("tableItems", tableItems);
+		
+		return mav;
+	}
 	
 	/**
 	 * 
 	 * @param hyraxInstanceNameModel
 	 * @return
 	 */
-	@RequestMapping(value="/remove", method = RequestMethod.GET)
-	public ModelAndView removeReporter(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
+	@RequestMapping(path="/remove", method = RequestMethod.GET)
+	@ResponseBody
+ 	public ModelAndView removeReporter(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
 		//log.info("/remove.1/5) removeReporter() entry, finding instance ...");
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
 		//log.info("/remove.2/5) found instance, retrieving id ...");
 		String hyraxInstanceId = register.getId();
 		//log.info("/remove.3/5) id : "+ hyraxInstanceId +" - calling removeLogLines() ...");
 		logLineService.removeLogLines(hyraxInstanceId);
+		
+		//List<LogLineDto> list = logLineService.findLogLines(hyraxInstanceNameModel.getHyraxInstanceName());
+		//String name = list.get(0).getValues().get("host");
+		
+		
 		//log.info("/remove.4/5) log lines removed, calling removeHyraxInstance() ...");
 		hyraxInstanceService.removeHyraxInstance(hyraxInstanceId);
 		//log.info("/remove.5/5) hyrax removed, returning <<");
@@ -154,7 +437,8 @@ public class ServerDetailsController{
 	/**
 	 * 
 	 */
-	@RequestMapping(value="/repull", method = RequestMethod.GET)
+	@RequestMapping(path="/repull", method = RequestMethod.GET)
+	@ResponseBody
 	public ModelAndView repullReporterLogs(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
 		String hyraxInstanceId = register.getId();
@@ -169,7 +453,8 @@ public class ServerDetailsController{
         return new ModelAndView("redirect:/server?hyraxInstanceName="+hyraxInstanceNameModel.getHyraxInstanceName());
 	}//end repullReporterLogs()
 	
-	@RequestMapping(value="/toggleActive", method = RequestMethod.GET)
+	@RequestMapping(path="/toggleActive", method = RequestMethod.GET)
+	@ResponseBody
 	public ModelAndView toggleReporterActive(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
 		
