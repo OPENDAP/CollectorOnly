@@ -160,7 +160,7 @@ public class ServerDetailsController{
 		List<LogLineDto> list = logLineService.findLogLines((serverInstance.getId()));
 		List<String> months = new ArrayList<String>();
 		List<Integer> numHosts = new ArrayList<Integer>();
-		List<Integer> dataSize = new ArrayList<Integer>();
+		List<Long> dataSize = new ArrayList<Long>();
 		int index = 0;
 		
 		long starttime = System.nanoTime();
@@ -173,14 +173,14 @@ public class ServerDetailsController{
 				index = months.indexOf(mmYYYY);
 				numHosts.add(1);
 				
-				int sizeInt = parseSize(lld);
+				long sizeInt = parseSize(lld);
 
 				dataSize.add(sizeInt);
 			}
 			else {
 				numHosts.set(index, numHosts.get(index) + 1);
 
-				int sizeInt = parseSize(lld);
+				long sizeInt = parseSize(lld);
 
 				dataSize.set(index, dataSize.get(index) + sizeInt);
 			}
@@ -198,7 +198,7 @@ public class ServerDetailsController{
 		for (String m : months) {
 			tableItems[index][0] = m;
 			tableItems[index][1] = numHosts.get(index).toString();
-			tableItems[index][2] = dataSize.get(index).toString() +" ("+ readibleSize(dataSize.get(index))+")";
+			tableItems[index][2] = readibleSize(dataSize.get(index), true);
 			index++;
 		}
 		
@@ -228,31 +228,31 @@ public class ServerDetailsController{
 		return time;
 	}
 	
-	private String readibleSize(int size) {
-		int kb = size / 1024;
-		int mb = kb / 1024;
-		int gb = mb / 1024;
+	private String readibleSize(long size, boolean expanded) {
+		long kb = size / 1024;
+		long mb = kb / 1024;
+		long gb = mb / 1024;
 		
 		if(size < 1024) {
 			return size + " bytes";
 		}
 		else if (kb < 1024) {
 			
-			return kb + " kilobytes";
+			return kb + ((expanded) ? " kilobytes" : " KBs");
 		}
 		else if (mb < 1024) {
 			
-			return mb + " megabytes";
+			return mb + ((expanded) ? " megabytes" : " MBs");
 		}
 		else {
-			return gb + " gigabyte";
+			return gb + ((expanded) ? " gigabyte" : " GBs");
 		}
 	}
 	
-	private Integer parseSize(LogLineDto lld) {
+	private Long parseSize(LogLineDto lld) {
 		String sizeString = lld.getValues().get("size");
 		//log.info("SET - before parse: "+sizeString);
-		int sizeInt;
+		long sizeInt;
 		
 		if(sizeString.equals("")) {
 			sizeInt = 0;
@@ -331,33 +331,56 @@ public class ServerDetailsController{
 		List<LogLineDto> list = logLineService.findLogLines(serverInstance.getId(), month);
 		List<String> names = new ArrayList<String>();
 		List<Integer> hostCount = new ArrayList<Integer>();
+		List<Long> dataSize = new ArrayList<Long>();
+		Long dataTotal = (long) 0;
+		int accessTotal = 0;
 		
 		//log.info("showHosts() | making the lists");
 		for (LogLineDto lld : list){
 			String name = lld.getValues().get("host");
 			if (names.contains(name)) {
 				hostCount.set(names.indexOf(name), hostCount.get(names.indexOf(name)) + 1);
+				accessTotal += 1;
+				
+				long sizeLong = parseSize(lld);
+				dataSize.set(names.indexOf(name), dataSize.get(names.indexOf(name)) + sizeLong);
+				dataTotal += sizeLong;
 			}
 			else {
 				names.add(name);
 				hostCount.add(1);
+				accessTotal += 1;
+				
+				long sizeLong = parseSize(lld);
+				dataSize.add(sizeLong);
+				dataTotal += sizeLong;
+				
 			}
 		}
 		
 		//log.info("showHosts() | making the 2d matrix");
-		String[][] hostItems = new String[names.size()][2];
+		String[][] hostItems = new String[names.size()][4];
 		
 		int index = 0;
 		for (String n : names) {
 			hostItems[index][0] = n;
 			hostItems[index][1] = hostCount.get(index).toString();
+			hostItems[index][2] = n.replace("+", "%2B");
+			hostItems[index][3] = readibleSize(dataSize.get(names.indexOf(n)),false);
+			
 			index++;
 		}
+		
+		String[] totalItems = new String[3];
+		totalItems[0] = names.size() + " unquie user agents"; //total number of user agents
+		totalItems[1] = ""+accessTotal; // total number of accesses
+		totalItems[2] = readibleSize(dataTotal, false); //total data downloaded
 		
 		//log.info("showHosts() | returning ...");
 		mav.addObject("serverName", serverInstance.getName());
 		mav.addObject("month",month);
 		mav.addObject("hostItems", hostItems);
+		mav.addObject("totals", totalItems);
 		
 		
 		return mav;
@@ -367,9 +390,11 @@ public class ServerDetailsController{
 	@ResponseBody
 	public ModelAndView showHostDetails(@Valid @ModelAttribute HyraxInstanceNameHostsModel hyraxInstanceNameHostsModel) {
 		
+		//log.info("\t /!\\ Enter showHostDetails() ... /!\\");
 		HyraxInstance serverInstance = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameHostsModel.getHyraxInstanceName());
 		String month = hyraxInstanceNameHostsModel.getMonth();
 		String host = hyraxInstanceNameHostsModel.getHost();
+		//log.info("\t hostName: '"+host+"'");
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("hostDetails");
 		
@@ -379,13 +404,13 @@ public class ServerDetailsController{
 		List<String> sizes = new ArrayList<String>();
 		List<String> durations = new ArrayList<String>();
 		
-		for (LogLineDto lld : list) {
-			
-			if (lld.getValues().get("host").equals(host)) {
+		//log.info("\t showHostDetails() - entering foreach loop");
+		for (LogLineDto lld : list) {			
+			if (lld.getValues().get("host").trim().equals(host)) {
 				resourceIds.add(lld.getValues().get("resourceId"));
 				queries.add(lld.getValues().get("query"));
 				sizes.add(lld.getValues().get("size"));
-				durations.add(lld.getValues().get("duration"));		
+				durations.add(lld.getValues().get("duration"));
 			}//end if
 		}//end foreach
 		

@@ -21,7 +21,7 @@ th, td {
 }
 </style>
 <meta charset="UTF-8">
-<title>Host Details</title>
+<title>User Agent Details</title>
 </head>
 <body>
 	<div>

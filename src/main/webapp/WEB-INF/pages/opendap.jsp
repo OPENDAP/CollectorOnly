@@ -65,6 +65,8 @@ th, td {
 				<th>Accessible</th>
 				<th>Failed Accesses</th>
 				<th>Currently Active</th>
+				<th>Number Pulled</th>
+				<th>Last Successful Pull</th>
 			</tr>
 			<c:forEach items="${items}" var="listItem">
 			
@@ -79,6 +81,8 @@ th, td {
 					<td>${listItem[1]}</td>
 					<td>${listItem[2]}</td>
 					<td>${listItem[3]}</td>
+					<td>${listItem[4]}</td>
+					<td>${listItem[5]}</td>
 				</tr>
 			</c:forEach>
 		</table>

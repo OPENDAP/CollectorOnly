@@ -59,17 +59,24 @@ th, td {
 	<div>
 		<table >
 			<tr>
-				<td>Host Name</td>
-				<td>Number of Accesses</td>
+				<th>User Agents</th>
+				<th>Number of Accesses</th>
+				<th>Total Data Size</th>
+			</tr>
+			<tr>
+				<th>${totals[0]}</th>
+				<th>${totals[1]}</th>
+				<th>${totals[2]}</th>
 			</tr>
 			<c:forEach items="${hostItems}" var="items">
 				<tr>
 					<td>
-						<a href="./hostDetails?hyraxInstanceName=${serverName}&month=${month}&host=${items[0]}">
+						<a href="./hostDetails?hyraxInstanceName=${serverName}&month=${month}&host=${items[2]}">
 							${items[0]}
 						</a>
 					</td>
 					<td>${items[1]}</td>
+					<td>${items[3]}</td>
 				</tr>
 			</c:forEach>
 		</table>
