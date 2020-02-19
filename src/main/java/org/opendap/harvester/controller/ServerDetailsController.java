@@ -338,22 +338,27 @@ public class ServerDetailsController{
 		//log.info("showHosts() | making the lists");
 		for (LogLineDto lld : list){
 			String name = lld.getValues().get("host");
-			if (names.contains(name)) {
+			if (names.contains(name)) { //if user agent has already been added
+				//increase the count for the user agent
 				hostCount.set(names.indexOf(name), hostCount.get(names.indexOf(name)) + 1);
+				//increase the total access count 
 				accessTotal += 1;
 				
+				//retrieve the size from the logline
 				long sizeLong = parseSize(lld);
+				//add size to total size for user agent
 				dataSize.set(names.indexOf(name), dataSize.get(names.indexOf(name)) + sizeLong);
+				//add to total size for all agents
 				dataTotal += sizeLong;
 			}
-			else {
-				names.add(name);
-				hostCount.add(1);
-				accessTotal += 1;
+			else { //if user agent hasn't been added to the list yet
+				names.add(name); //add the user agent
+				hostCount.add(1); //begin access count record for user agent
+				accessTotal += 1; //add to total count for all agents
 				
-				long sizeLong = parseSize(lld);
-				dataSize.add(sizeLong);
-				dataTotal += sizeLong;
+				long sizeLong = parseSize(lld); //get data size 
+				dataSize.add(sizeLong); //begin data size record for user agent
+				dataTotal += sizeLong; //add to total data size for all user agents
 				
 			}
 		}
