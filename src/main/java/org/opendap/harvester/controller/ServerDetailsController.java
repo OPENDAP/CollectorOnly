@@ -276,14 +276,52 @@ public class ServerDetailsController{
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}		
+
 		LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 		int month = localDate.getMonthValue();
 		int year = localDate.getYear();
 		String readible = determineMonth(month) +" "+ year;
 		
 		return readible;
+		
+	}//convertDateToString()
+	
+	private int convertDateToMonthLength(String rubbish) {
+		
+		SimpleDateFormat formatter6=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+		Date date = null;
+		
+		try {
+			date = formatter6.parse(rubbish);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+
+		LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		int month = localDate.lengthOfMonth();
+		
+		return month;
+		
+	}//convertDateToString()
+	
+	private int convertDateToDayInt(String rubbish) {
+		
+		SimpleDateFormat formatter6=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+		Date date = null;
+		
+		try {
+			date = formatter6.parse(rubbish);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		int dayNumber = localDate.getDayOfMonth();
+		
+		return dayNumber;
 		
 	}//convertDateToString()
 	
@@ -332,8 +370,11 @@ public class ServerDetailsController{
 		List<String> names = new ArrayList<String>();
 		List<Integer> hostCount = new ArrayList<Integer>();
 		List<Long> dataSize = new ArrayList<Long>();
+		List<Integer> dailyCount = new ArrayList<Integer>();
 		Long dataTotal = (long) 0;
 		int accessTotal = 0;
+		
+		int dayCount = convertDateToMonthLength(list.get(0).getValues().get("localDateTime"));
 		
 		//log.info("showHosts() | making the lists");
 		for (LogLineDto lld : list){
@@ -361,13 +402,36 @@ public class ServerDetailsController{
 				dataTotal += sizeLong; //add to total data size for all user agents
 				
 			}
+			
+			int day = convertDateToDayInt(lld.getValues().get("localDateTime"));
+			if(dailyCount.size() < day) {
+				if(dailyCount.size() == day - 1) {
+					dailyCount.add(1);
+					//log.info("next day init : " + dailyCount.size());
+				}
+				else {
+					for (int x = dailyCount.size(); x < day-1; x++) {
+						dailyCount.add(0);
+						//log.info("loop day init : " + dailyCount.size());
+					}
+					dailyCount.add(1);
+					//log.info("end loop day init : " + dailyCount.size());
+				}
+				
+			}
+			else {
+				dailyCount.set(day-1, dailyCount.get(day-1) + 1);
+				//log.info("day addition : " + day);
+			}
+			
+			
 		}
 		
 		//log.info("showHosts() | making the 2d matrix");
 		String[][] hostItems = new String[names.size()][4];
 		
 		int index = 0;
-		for (String n : names) {
+		for (String n : names) { // data in the table
 			hostItems[index][0] = n;
 			hostItems[index][1] = hostCount.get(index).toString();
 			hostItems[index][2] = n.replace("+", "%2B");
@@ -376,16 +440,52 @@ public class ServerDetailsController{
 			index++;
 		}
 		
-		String[] totalItems = new String[3];
+		// static data
+		String[] totalItems = new String[5];
 		totalItems[0] = names.size() + " unquie user agents"; //total number of user agents
 		totalItems[1] = ""+accessTotal; // total number of accesses
 		totalItems[2] = readibleSize(dataTotal, false); //total data downloaded
+		totalItems[4] = ""+dayCount;
+		
+		int max = 0; //used to hold the max value of the daily count
+		
+		//convert the integer list to an string array 
+		index = 0;
+		String[] graph1Data = new String[dailyCount.size()];
+		for(int i : dailyCount) {
+			//int a = dailyCount.get(index);
+			graph1Data[index] = i + "";
+			if (i > max) {max = i;}
+			index++;
+		}
+		
+		// find an appropriate max value for the graph
+		if (max < 100) {
+			int mult = max / 10;
+			max = 10 * (mult + 1);
+		}
+		else if (max < 500) {
+			int mult = max / 50;
+			max = 50 * (mult + 1);
+		}
+		else if (max < 10000) {
+			int mult = max / 500;
+			max = 500 * (mult + 1);
+		}
+		else {
+			int mult = max / 1000;
+			max = 1000 * (mult + 1);
+		}
+		
+		//ready to pass to the .jsp page
+		totalItems[3] = max + "";
 		
 		//log.info("showHosts() | returning ...");
 		mav.addObject("serverName", serverInstance.getName());
 		mav.addObject("month",month);
 		mav.addObject("hostItems", hostItems);
 		mav.addObject("totals", totalItems);
+		mav.addObject("graph1Data", graph1Data);
 		
 		
 		return mav;

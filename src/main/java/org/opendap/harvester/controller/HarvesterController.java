@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/harvester")
 public class HarvesterController {
-	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
     
 	/**
      * Autowired automatically inject some of the HyraxInstanceRegisterService implementations to this

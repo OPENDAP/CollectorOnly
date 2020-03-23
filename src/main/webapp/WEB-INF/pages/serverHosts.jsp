@@ -125,7 +125,11 @@
 		<svg id="mGraph" width="1200" height="600"></svg>
 	</div>
 	
-	<script>	
+	<script type="text/javascript">	
+		//////////////////////////////////////////////////////////////////////////////////
+		// PAGE FCTS
+		////////////////////////////////////////////////////////////////////////
+		
 		function openTab(evt, tabName){
 			// Declare all variables
 			var i, tabcontent, tablinks;
@@ -149,42 +153,61 @@
 		
 		document.getElementById("defaultOpen").click();
 		
-		//var graph_1_data = ${graph1Data};
+		//////////////////////////////////////////////////////////////////////////////////
+		// MONTHLY ACCESS BAR GRAPH FCTS (Date x Count)
+		////////////////////////////////////////////////////////////////////////
+		
+		var src = new Array();
+		
+		<c:forEach var="cell" items="${graph1Data}">
+			src.push(['${cell}']);
+		</c:forEach>
+		
+		var days = '${totals[4]}';
+		
+		//console.log(src);
 		
 		var msvg = d3.select("#mGraph"), 
 			margin = 100, 
 			width = msvg.attr("width") - margin,
 			height = msvg.attr("height") - margin;
 		
-		var data = [10, 50, 15, 30, 20, // 5
-					20, 21, 22, 23, 24, // 10
-					25, 26, 27, 28, 29, // 15
-					30, 31, 32, 33, 34, // 20
-					35, 36, 37, 38, 39, // 25
-					40, 41, 42, 43, 44, // 30
-					45]; // 31
+		var data = src;
+			
+		var maxDomain = '${totals[3]}';
+		//console.log("Max Domain - " + maxDomain);
 		
 		var xScale = d3.scaleBand()
 				//.domain([0, 32])
 				.range ([0, width - 10]).padding(0.4),
 			yScale = d3.scaleLinear()
-				.domain([0, d3.max(data)])
+				.domain([0, maxDomain])
 				.range ([height, 0]);
 					
 		var tickNumber = 0;
 					
-		if(data.length == 31){
+		if(days == 31){
 			xScale.domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-							11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-							21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
+				11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+				21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
 			tickNumber = 31;
 		}
-		else if(data.lenght == 28){
-			xScale.domain([0,28]);
+		else if(days == 28){
+			xScale.domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+				11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+				21, 22, 23, 24, 25, 26, 27, 28]);
 			tickNumber = 28;
 		}
+		else if(days == 29){
+			xScale.domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+				11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+				21, 22, 23, 24, 25, 26, 27, 28, 29]);
+			tickNumber = 29;
+		}
 		else{
-			xScale.domain([0,30]);
+			xScale.domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+				11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+				21, 22, 23, 24, 25, 26, 27, 28, 29, 30]);
 			tickNumber = 30;
 		}
 				
@@ -208,8 +231,25 @@
 			.attr("width", xScale.bandwidth())
 			.attr("height", function(d,i) { return height - yScale(d); });
 		
+		msvg.selectAll(".text")
+			.data(data)
+			.enter().append("text")
+			.attr("class","label")
+			.attr("x", function(d,i) { return xScale(i+1) + 100 + (xScale.bandwidth() / 2); })
+			.attr("y", function(d,i) { return yScale(d) + 5; })
+			.attr("font-family", "sans-serif")
+            .attr("font-size", "11px")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .text(function(d){return d;});
 		
+		//////////////////////////////////////////////////////////////////////////////////
+		// DURATION VS SIZE DOT GRAPH FCTS (Duration x Data Size)
+		////////////////////////////////////////////////////////////////////////
 		
+		//////////////////////////////////////////////////////////////////////////////////
+		// HOURS VS DURATION DOT GRAPH FCTS (Time of Day x Duration x Data Size)
+		////////////////////////////////////////////////////////////////////////
 		
 	</script>
 </body>

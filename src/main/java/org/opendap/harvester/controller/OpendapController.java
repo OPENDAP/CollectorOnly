@@ -53,7 +53,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class OpendapController{
-	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
 	
 	@Autowired
 	private HyraxInstanceService hyraxInstanceService;
@@ -89,8 +89,8 @@ public class OpendapController{
 			nameList[index][3] = hid.getActive().toString();
 			HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hid.getName());
 			nameList[index][4] = ""+logLineService.findNumberLogLines(register.getId());
-			log.info("LSP : "+register.getLastSuccessfulPull());
-			log.info("LAT : "+register.getLastAccessTime());
+			//log.info("LSP : "+register.getLastSuccessfulPull());
+			//log.info("LAT : "+register.getLastAccessTime());
 			String lsp;
 			if (register.getLastSuccessfulPull() == null) {
 				lsp = "Time Not Found";
