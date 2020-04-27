@@ -50,6 +50,19 @@ th, td {
 	padding: 5px;
 	text-align: left;
 }
+
+tr.error td {
+	background-color: #ffb3b3;
+}
+
+tr.inactive td {
+	background-color: #b3b3ff;
+}
+
+tr.green td {
+	background-color: #b3ffb3;
+}
+
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>OPENDAP Collector Home</title>
@@ -59,7 +72,7 @@ th, td {
 		<h1>${message}</h1>
 	</div>
 	<div id="List" style="float:left;">
-		<table>
+		<table id="serverTable">
 			<tr>
 				<th>Reporters</th>
 				<th>Accessible</th>
@@ -97,5 +110,22 @@ th, td {
 		<div id="StatisticsBtn">
 		</div>
 	</div>
+	<script type="text/javascript">
+			var table = document.getElementById('serverTable');
+			var l = table.rows.length;
+			for (var x = 1, y = l; x < y; x ++){
+				var accessible = table.rows[x].cells[1].innerHTML;
+				var active = table.rows[x].cells[3].innerHTML;
+				if(active == "false"){
+					table.rows[x].classList.add("inactive");
+				}
+				else if (accessible == "false"){
+					table.rows[x].classList.add("error");
+				}
+				else{
+					table.rows[x].classList.add("green");
+				}
+			}
+	</script>
 </body>
 </html>

@@ -30,6 +30,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <!-- <link rel="stylesheet" type="text/css" href="Style.css"> -->
 <style type="text/css">
 table {
@@ -119,17 +120,27 @@ th, td {
 			View monthly breakdowns
 		</a>
 		<br/>
+		<button type="button" id="repullBtn" onclick="javascript:repull()">
+			Clear and Re-Pull Server Logs
+		</button> 
+		<!-- 
 		<a href="./repull?hyraxInstanceName=${name}">
 			Clear and Re-Pull Server Logs
-		</a>
+		</a> 
+		 -->
 		<br/>
 		<a href="./toggleActive?hyraxInstanceName=${name}">
 			Toggle Reporter Active Status
 		</a>
 		<br/>
+		<button type="button" id="removeBtn" onclick="javascript:remove()">
+			Remove Server
+		</button> 
+		<!-- 
 		<a href="./remove?hyraxInstanceName=${name}">
 			Remove Server
 		</a>
+		 -->
 		<br/>
 		<br/>
 		Current Error Count : ${errorCount} <br/>
@@ -146,5 +157,72 @@ th, td {
 		</table>
 		-->
 	</div>
+	<script>
+		var serverName = '${name}';
+		//console.log("Name: "+ serverName);
+	
+		function repull() {
+			//console.log("repull() called");
+			if (confirm("Are you sure you want to clear and repull all log data?")){
+				//console.log("Yes: beginning repull ...");
+				
+				var fctData = {
+						hyraxInstanceName : serverName
+				}
+				
+				$.ajax({
+					type: "POST",
+					url: "./repull",
+					data: fctData,
+					success: function (textStatus, status) {
+				        //console.log(textStatus);
+				        //console.log(status);
+				        location.reload();
+					},
+					error: function(xhr, textStatus, error) {
+				        //console.log(xhr.responseText);
+				        //console.log(xhr.statusText);
+				        //console.log(textStatus);
+				        //console.log(error);
+					}
+				});
+			}
+			else{
+				//console.log("No: cancelling ...");
+			}
+		}// end repull()
+		
+		function remove() {
+			//console.log("remove() called");
+			if (confirm("Are you sure you want to remove this reporter?")){
+				//console.log("Yes: beginning remove ...");
+				
+				var fctData = {
+						hyraxInstanceName : serverName
+				}
+				
+				$.ajax({
+					type: "POST",
+					url: "./remove",
+					data: fctData,
+					success: function (textStatus, status) {
+				        //console.log(textStatus);
+				        //console.log(status);
+				        location.replace("./opendap");
+					},
+					error: function(xhr, textStatus, error) {
+				        //console.log(xhr.responseText);
+				        //console.log(xhr.statusText);
+				        //console.log(textStatus);
+				        //console.log(error);
+					}
+				});
+			}
+			else{
+				//console.log("No: cancelling ...");
+			}
+		}// end repull()
+		
+	</script>
 </body>
 </html>

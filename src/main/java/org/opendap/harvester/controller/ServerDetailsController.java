@@ -27,6 +27,7 @@ package org.opendap.harvester.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -58,7 +59,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 //@RequestMapping("/server")
 public class ServerDetailsController{
-	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
 	
 	@Autowired
 	private HyraxInstanceService hyraxInstanceService;
@@ -354,6 +355,23 @@ public class ServerDetailsController{
 		default:
 			return "NoMonth!!!WeAreAllGonnaDie!!!!";
 		}
+	}// end determineMonth()
+	
+	private int determineDayofWeek(String rubbish) {
+		SimpleDateFormat formatter6=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+		Date date = null;
+		
+		try {
+			date = formatter6.parse(rubbish);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		DayOfWeek dayNumber = localDate.getDayOfWeek();
+		
+		return dayNumber.getValue();
 	}
 	
 	@RequestMapping(path="/hosts", method = RequestMethod.GET)
@@ -375,6 +393,7 @@ public class ServerDetailsController{
 		int accessTotal = 0;
 		
 		int dayCount = convertDateToMonthLength(list.get(0).getValues().get("localDateTime"));
+		int startDay = determineDayofWeek(list.get(0).getValues().get("localDateTime"));
 		
 		//log.info("showHosts() | making the lists");
 		for (LogLineDto lld : list){
@@ -441,7 +460,7 @@ public class ServerDetailsController{
 		}
 		
 		// static data
-		String[] totalItems = new String[5];
+		String[] totalItems = new String[6];
 		totalItems[0] = names.size() + " unquie user agents"; //total number of user agents
 		totalItems[1] = ""+accessTotal; // total number of accesses
 		totalItems[2] = readibleSize(dataTotal, false); //total data downloaded
@@ -479,6 +498,7 @@ public class ServerDetailsController{
 		
 		//ready to pass to the .jsp page
 		totalItems[3] = max + "";
+		totalItems[5] = startDay + "";
 		
 		//log.info("showHosts() | returning ...");
 		mav.addObject("serverName", serverInstance.getName());
@@ -563,6 +583,30 @@ public class ServerDetailsController{
 		return new ModelAndView("redirect:/opendap");
 	}//end removeReporter()
 	
+	/**
+	 * 
+	 * @param hyraxInstanceNameModel
+	 * @return
+	 */
+	@RequestMapping(path="/remove", method = RequestMethod.POST)
+	@ResponseBody
+ 	public String removeReporterPOST(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
+		//log.info("/remove.1/5) removeReporter() entry, finding instance ...");
+		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
+		//log.info("/remove.2/5) found instance, retrieving id ...");
+		String hyraxInstanceId = register.getId();
+		//log.info("/remove.3/5) id : "+ hyraxInstanceId +" - calling removeLogLines() ...");
+		logLineService.removeLogLines(hyraxInstanceId);
+		
+		//List<LogLineDto> list = logLineService.findLogLines(hyraxInstanceNameModel.getHyraxInstanceName());
+		//String name = list.get(0).getValues().get("host");
+		
+		
+		//log.info("/remove.4/5) log lines removed, calling removeHyraxInstance() ...");
+		hyraxInstanceService.removeHyraxInstance(hyraxInstanceId);
+		//log.info("/remove.5/5) hyrax removed, returning <<");
+		return "Type : OK, Status : 200";
+	}//end removeReporter()
 
 	/**
 	 * 
@@ -581,6 +625,35 @@ public class ServerDetailsController{
         logLineService.addLogLines(hyraxInstanceId, logDataDto.getLines());
         
         return new ModelAndView("redirect:/server?hyraxInstanceName="+hyraxInstanceNameModel.getHyraxInstanceName());
+	}//end repullReporterLogs()
+	
+	/**
+	 * 
+	 */
+	@RequestMapping(path="/repull", method = RequestMethod.POST)
+	@ResponseBody
+	public String repullReporterLogsPOST(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
+		//log.info("repullReporterLogsPOST() entered ...");
+		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
+		//log.info("repullReporterLogsPOST() instance found ...");
+		String hyraxInstanceId = register.getId();
+		//log.info("repullReporterLogsPOST() id found ...");
+		ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
+		//log.info("repullReporterLogsPOST() timezone found ...");
+		
+		logLineService.removeLogLines(hyraxInstanceId);
+		//log.info("repullReporterLogsPOST() log lines removed ...");
+		LogDataDto logDataDto = logCollectorService.collectAllLogs(register);
+		//log.info("repullReporterLogsPOST() collected new log lines ...");
+		hyraxInstanceService.updateLastAccessTime(register, utc.toLocalDateTime());
+		//log.info("repullReporterLogsPOST() updated last access time ...");
+		hyraxInstanceService.updateLastSuccessPullTime(register, utc.toLocalDateTime());
+		//log.info("repullReporterLogsPOST() updated last success pull time ...");
+        logLineService.addLogLines(hyraxInstanceId, logDataDto.getLines());
+        //log.info("repullReporterLogsPOST() added new log lines ...");
+        
+        //log.info("repullReporterLogsPOST() returning <<");
+        return "Type : OK, Status : 200";
 	}//end repullReporterLogs()
 	
 	@RequestMapping(path="/toggleActive", method = RequestMethod.GET)

@@ -82,6 +82,15 @@
 	  border: 1px solid #ccc;
 	  border-top: none;
 	} 
+	
+	.weekday {
+		fill: black;
+	}
+	
+	.weekend {
+		fill: red;
+	}
+	
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Server Hosts</title>
@@ -164,6 +173,7 @@
 		</c:forEach>
 		
 		var days = '${totals[4]}';
+		var weekday = '${totals[5]}';
 		
 		//console.log(src);
 		
@@ -226,6 +236,19 @@
 			.data(data)
 			.enter().append("rect")
 			.attr("class", "bar")
+			.attr("class", function(d,i) {
+					if(weekday == 6 || weekday == 7){
+						weekday++;
+						if (weekday == 8){
+							weekday = weekday - 7;
+						}
+						return "weekend";
+					}
+					else{
+						weekday++;
+						return "weekday";
+					}
+				})
 			.attr("x", function(d,i) { return xScale(i+1) + 100; })
 			.attr("y", function(d,i) { return yScale(d) + 10; })
 			.attr("width", xScale.bandwidth())
