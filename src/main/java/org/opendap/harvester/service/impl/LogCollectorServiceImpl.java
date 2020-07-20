@@ -70,7 +70,7 @@ public class LogCollectorServiceImpl implements LogCollectorService {
         	//logg.info("collectLogs 3/3) returning ...");
         	return logDataDto;
         } catch (HttpClientErrorException e){
-        	//TODOs fix collectLogs so that if reporter is offline program will report issue and continue.
+        	//TODO fix collectLogs so that if reporter is offline program will report issue and continue.
         	//logg.info("collectLogs 2e/3) /!\\ HttpClientErrorException : "+e.getMessage()+" /!\\");
         	LogDataDto logDataDto = new LogDataDto();
         	//logg.info("collectLogs 3e/3) returning");
