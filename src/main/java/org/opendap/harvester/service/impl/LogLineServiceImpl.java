@@ -28,52 +28,177 @@ package org.opendap.harvester.service.impl;
 import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.dao.HyraxInstanceRepository;
 import org.opendap.harvester.dao.LogLineRepository;
+import org.opendap.harvester.dao.MonthTotalsRepository;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.document.LogLine;
+import org.opendap.harvester.entity.document.MonthTotals;
 import org.opendap.harvester.entity.dto.LogLineDto;
+import org.opendap.harvester.service.DateTimeUtilService;
+import org.opendap.harvester.service.LogLineParsingUtilService;
 import org.opendap.harvester.service.LogLineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class LogLineServiceImpl implements LogLineService {
-	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	private boolean logOutput = true;
 	
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
 
     @Autowired
     private LogLineRepository logLineRepository;
+    
+    @Autowired
+    private MonthTotalsRepository monthTotalsRepository;
+    
+    @Autowired 
+    private LogLineParsingUtilService logLineParsingUtilService;
+
+    @Autowired
+    private DateTimeUtilService dateTimeUtilService;
 
     @Override
     public void addLogLines(String hyraxInstanceId, List<LogLineDto> logLineDtoList) {
+    	if (logOutput) {logg.info("\naddLogLines() : Entering fct ...");}
         HyraxInstance hyraxInstance = hyraxInstanceRepository.findByIdAndActiveTrue(hyraxInstanceId);
+        if (logOutput) {logg.info("addLogLines() : hyraxInstance "+ hyraxInstance.getName());}
+        
+		////////////////////////////////////////////////////////////////////////////
+		// BUILDING LOG LINES
+		///////////////////////////////////////
+        
+        if (logOutput) {logg.info("addLogLines() : building log lines ...");}
         if (hyraxInstance != null) {
             List<LogLine> logLines = logLineDtoList.stream()
                     .map(dto -> LogLine.builder()
                             .hyraxInstanceId(hyraxInstanceId)
+                            .monthId(dateTimeUtilService.convertDateToString(dto.getValues().get("localDateTime")))
                             .values(dto.getValues())
                             .build())
                     .collect(Collectors.toList());
+            
+            ////////////////////////////////////////////////////////////////////////////
+            // SETUP FOR MONTHLY TOTALS
+            ///////////////////////////////////////
+            
+            if (logOutput) {logg.info("addLogLines() : ... log lines built");}
+            //setup for calculating monthTotals 
+            MonthTotals monthTotal = null;
+            String curMonth = null;
+            
+			////////////////////////////////////////////////////////////////////////////
+			// COMPILING MONTH TOTALS
+			///////////////////////////////////////
+            
+            if (logOutput) {logg.info("addLogLines() : " + logLines.size() + " logs - calculating monthly totals ...");}
+            for(LogLine ll : logLines) {
+            	// for-each logLine we have received
+            	// if (logOutput) {logg.info("addLogLines() : loop " + logLines.indexOf(ll));}
+            	if (curMonth == null) {
+            		if (logOutput) {logg.info("addLogLines() : curMonth == null, first loop");}
+            		//for the first logLine we process, init the whole process
+	            	if(monthTotalsRepository.existsMonthTotalByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId())) {
+	            		if (logOutput) {logg.info("addLogLines() : monthTotal exists, retrieving ...");}
+	            		//check if MonthTtotal exists, if so retrieve
+	            		monthTotal = monthTotalsRepository.findByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId());
+	            		// set curMonth
+	            		curMonth = ll.getMonthId();
+	            		if (logOutput) {logg.info("addLogLines() : ... retrieved - month : " + monthTotal.getMonthId());}
+	            	} 
+	            	else {
+	            		if (logOutput) {logg.info("addLogLines() : monthTotal does not exists ...");}
+	            		// MonthTotal doesn't exist, generate a new MonthTotal
+	            		monthTotal = MonthTotals.builder()
+	            				.hyraxInstanceId(ll.getHyraxInstanceId())
+	            				.monthId(ll.getMonthId())
+	            				.logCount((long) 0)
+	            				.byteCount((long) 0)
+	            				.build();
+	            		//set curMonth
+	            		curMonth = ll.getMonthId();
+	            		if (logOutput) {logg.info("addLogLines() : ... generated - month : "+monthTotal.getMonthId());}	            		
+	            	} 
+            	} //end if
+            	else if (!ll.getMonthId().equals(curMonth)) {
+            		if (logOutput) {logg.info("addLogLines() : logline.Month != curmonth, curmonth : '" + curMonth + "' - log month : '" + ll.getMonthId() +"'");}
+            		//if in the same month
+	            	if(monthTotalsRepository.existsMonthTotalByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId())) {
+	            		if (logOutput) {logg.info("addLogLines() : monthTotal exists, retrieving ...");}
+	            		//check if MonthTtotal exists, if so retrieve
+	            		monthTotal = monthTotalsRepository.findByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId());
+	            		// set curMonth
+	            		curMonth = ll.getMonthId();
+	            		if (logOutput) {logg.info("addLogLines() : ... retrieved - month : " + monthTotal.getMonthId());}
+	            	} 
+	            	else {
+	            		if (logOutput) {logg.info("addLogLines() : monthTotal does not exists ...");}
+	            		// MonthTotal doesn't exist
+	            		if (monthTotal != null) {
+	            			if (logOutput) {logg.info("addLogLines() : saving pervious month - old month : "+monthTotal.getMonthId());}
+	            			//checking if a monthTotal already init-ed, if so save it before generating new one
+	            			monthTotalsRepository.save(monthTotal);
+	            		}
+	            		// generate a new MonthTotal
+	            		monthTotal = MonthTotals.builder()
+	            				.hyraxInstanceId(ll.getHyraxInstanceId())
+	            				.monthId(ll.getMonthId())
+	            				.logCount((long) 0)
+	            				.byteCount((long) 0)
+	            				.build();
+	            		// set curMonth
+	            		curMonth = ll.getMonthId();
+	            		if (logOutput) {logg.info("addLogLines() : ... generated - new month : "+monthTotal.getMonthId());}	            		
+	            	} 
+            	} //end else if
+            	
+            	// increment the log count for the month
+            	monthTotal.incrementLogCount();
+            	// add the log line bytes to the total bytes for the month
+            	monthTotal.addToByteCount(logLineParsingUtilService.parseSize(ll));
+            	
+            } //end foreach loop
+            if (logOutput) {logg.info("addLogLines() : ... monthly totals calculated");}
+            
+			////////////////////////////////////////////////////////////////////////////
+			// SAVING LOG LINES AND MONTH TOTALS
+			///////////////////////////////////////
+            
+            if (logOutput) {logg.info("addLogLines() : saving log lines and monthly totals ...");}
+            // save the monthTotal and the logLines
+            
+            if (monthTotal != null) {monthTotalsRepository.save(monthTotal);}
             logLineRepository.save(logLines);
-        }
-    }
+            
+            if (logOutput) {logg.info("addLogLines() : ... log lines and monthly totals saved");}
+            
+            if (logOutput) {logg.info("addLogLines() : returning << ");}
+        } //end if 
+    } //end addLogLines
 
     @Override
     public List<LogLineDto> findLogLines(String hyraxInstanceId) {
-        return logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
+    	List<LogLineDto> logs =logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
                 .map(this::buildDto)
                 .collect(Collectors.toList());
+    	return logs;
+    }
+    
+    @Override
+    public List<LogLine> findLogLinesVer2(String hyraxInstanceId) { // <-- temporary ... maybe, SBL 8/10/20
+    	List<LogLine> logs = logLineRepository.findByHyraxInstanceId(hyraxInstanceId);
+                //.collect(Collectors.toList());
+    	return logs;
+    }
+    
+    public void saveLogLine(LogLine logline) { // <-- temporary ... maybe, SBL 8/10/20
+    	logLineRepository.save(logline);
     }
     
     @Override
@@ -91,179 +216,36 @@ public class LogLineServiceImpl implements LogLineService {
     }
     
     @Override
-    public List<LogLineDto> findLogLines(String hyraxInstanceId, String monthYear) {
-    	
-    	//logg.info("entering findLogLines() ... - startMonth : '"+monthYear+"'");
+    public List<LogLineDto> findLogLines(String hyraxInstanceId, int start, int end) {
     	List<LogLineDto> logs = logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
+                .map(this::buildDto)
+                .collect(Collectors.toList()).subList(start, end);
+                
+        return logs;
+    }
+    
+    @Override
+    public List<LogLineDto> findLogLines(String hyraxInstanceId, String monthYear) {
+    	// TODO change over to using hyraxInstanceId and monthID
+    	//logg.info("entering findLogLines() ... - startMonth : '"+monthYear+"'");
+    	List<LogLineDto> logs = logLineRepository.streamByHyraxInstanceIdAndMonthId(hyraxInstanceId, monthYear) 
                 .map(this::buildDto)
                 .collect(Collectors.toList());
     	
-    	String endmmYYYY = determineEndMonth(monthYear);
-    	int startIndex = -1;
-    	int endIndex = -1;
-    	int count = 0;
-    	
-    	//logg.info("findLogLines() | determining start and end");
-    	for (LogLineDto lld : logs) {
-    		String mmYYYY = convertDateToString(lld.getValues().get("localDateTime"));
-    		//logg.info("findLogLines() | '"+mmYYYY+"'");
-    		
-    		if (mmYYYY.equals(monthYear) && startIndex == -1) {
-    			//logg.info("findLogLines() | found start - "+ mmYYYY);
-    			startIndex = logs.indexOf(lld);
-    			count = 1;
-    		}
-    		else if (mmYYYY.equals(monthYear)) {
-    			count++;
-    		}
-    		
-    		if (mmYYYY.equals(endmmYYYY) && endIndex == -1) {
-    			//logg.info("findLogLines() | found end - "+ mmYYYY);
-    			endIndex = logs.indexOf(lld) - 1;
-    			break;
-    		}
-    	}
-    	
-    	if(startIndex == -1) {
-    		//logg.info("findLogLines() | didnt find start");
-    		startIndex = 0;
-    	}
-    	
-    	if(endIndex == -1) {
-    		if (count > 0) {
-    			//logg.info("findLogLines() | didnt find end but possitive count");
-    			endIndex = startIndex + count;
-    			//logg.info("findLogLines() | endindex - "+endIndex);
-    		}
-    		else {
-    		//logg.info("findLogLines() | didnt find end");
-    		endIndex = logs.size();
-    		}
-    	}
-    	
-    	//logg.info("findLogLines() | returning ...");
-        return logs.subList(startIndex, endIndex);
+        return logs;
     }//findLogLines()
-    
-	private String convertDateToString(String rubbish) {
-		
-		SimpleDateFormat formatter6=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
-		Date date = null;
-		
-		try {
-			date = formatter6.parse(rubbish);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		int month = localDate.getMonthValue();
-		int year = localDate.getYear();
-		String readible = determineMonth(month) +" "+ year;
-		
-		return readible;
-		
-	}//convertDateToString()
 	
-	private String determineMonth(int num) {
-		switch (num) {
-		case 1:
-			return "January";
-		case 2:
-			return "Febuary";
-		case 3:
-			return "March";
-		case 4:
-			return "April";
-		case 5:
-			return "May";
-		case 6:
-			return "June";
-		case 7:
-			return "July";
-		case 8:
-			return "August";
-		case 9:
-			return "September";
-		case 10:
-			return "October";
-		case 11:
-			return "November";
-		case 12:
-			return "December";
-		default:
-			return "NoMonth!!!WeAreAllGonnaDie!!!!";
-		}
-	}
-	
-	private String determineEndMonth(String startMonth) {
-		//logg.info("entering determineEndMonth() ...");
-		String month = startMonth.substring(0, startMonth.length() - 4).trim();
-		int end;
-		int year = Integer.parseInt(startMonth.substring(startMonth.length() - 4));
-		
-		//logg.info("determineEndMonth() | substring month - '"+month+"'");
-		
-		switch (month){
-		case "January":
-			end = 2;
-			break;
-		case "Febuary":
-			end = 3;
-			break;
-		case "March":
-			end = 4;
-			break;
-		case "April":
-			end = 5;
-			break;
-		case "May":
-			end = 6;
-			break;
-		case "June":
-			end = 7;
-			break;
-		case "July":
-			end = 8;
-			break;
-		case "August":
-			end = 9;
-			break;
-		case "September":
-			end = 10;
-			break;
-		case "October":
-			end = 11;
-			break;
-		case "November":
-			end = 12;
-			break;
-		case "December":
-			end = 1;
-			year++;
-			break;
-		default:
-			end = 0;
-			break;
-		}
-		
-		//logg.info("determineEndMonth() | end switch: "+ end + " - "+ year);
-		String endMonth = determineMonth(end);
-		//logg.info("determineEndMonth() | endMonth: "+ endMonth + " - "+ year);
-		//logg.info("determineEndMonth() | returning ...");
-		return endMonth +" "+ year;
-	}
-    
     @Override
-    public int findNumberLogLines(String hyraxInstanceId) {
+    public long findNumberLogLines(String hyraxInstanceId) {
+    	return logLineRepository.countByHyraxInstanceId(hyraxInstanceId);
+    	/*
     	List<LogLineDto> logs = logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
                 .map(this::buildDto)
                 .collect(Collectors.toList());
     	return logs.size();
+    	*/
     }
     
-
     @Override
     public String findLogLinesAsString(String hyraxInstanceId) {
         return logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)

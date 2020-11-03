@@ -29,6 +29,7 @@ import org.opendap.harvester.entity.dto.HyraxInstanceDto;
 import org.opendap.harvester.entity.document.HyraxInstance;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public interface HyraxInstanceService {
@@ -47,5 +48,5 @@ public interface HyraxInstanceService {
     HyraxInstance findHyraxInstanceByName(String hyraxInstanceName);
     public HyraxInstance updatePing(String serverUrl, long ping);
     //TODO implement 'public HyraxInstance updateHyraxInstance(UpdateModel updateModel)'. sbl 7.2.19 ;
-    public void removeHyraxInstance(String hyraxInstanceId); 
+    public void removeHyraxInstance(String hyraxInstanceId);
 }

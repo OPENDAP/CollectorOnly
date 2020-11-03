@@ -37,6 +37,7 @@ import java.util.Map;
 @Getter @Setter
 public class LogLine extends BaseEntity {
     private String hyraxInstanceId;
+    private String monthId;
     private Map<String, String> values;
 
 }

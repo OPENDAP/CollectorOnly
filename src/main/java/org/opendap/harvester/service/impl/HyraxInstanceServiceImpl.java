@@ -26,12 +26,9 @@
 package org.opendap.harvester.service.impl;
 
 import org.opendap.harvester.entity.dto.HyraxInstanceDto;
-import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.dao.HyraxInstanceRepository;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.service.HyraxInstanceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -295,7 +292,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
         //return hyraxInstanceRepository.findByNameAndActiveTrue(hyraxInstanceName);
         return hyraxInstanceRepository.findByName(hyraxInstanceName);
     }
-
+    
     @Override
 	public void removeHyraxInstance(String hyraxInstanceId) {
     	//logg.info("removeHI.1/2) removeHyraxInstance() entry, calling delete() ...");
@@ -303,5 +300,7 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
 		hyraxInstanceRepository.delete(hyraxInstanceId);
 		//logg.info("removeHI.2/2) instance deleted, returning <<");
 	}//end removeHyraxInstance()
+
+
     
 }//end class HyraxInstanceServiceImpl

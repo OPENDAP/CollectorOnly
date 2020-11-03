@@ -49,34 +49,35 @@ import java.time.LocalDateTime;
 
 @Service
 public class LogCollectorServiceImpl implements LogCollectorService {
-	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
-
+	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	private boolean logOutput = false;
+	
     @Autowired
     private RestTemplate restTemplate;
 
     @Override
     public LogDataDto collectLogs(HyraxInstance hyraxInstance, LocalDateTime since) {
         try {
-        	//logg.info("collectLogs 1/3) retrieving log lines from "+hyraxInstance.getName());
+        	if(logOutput) {logg.info("collectLogs 1/3) retrieving log lines from "+hyraxInstance.getName()+"\tReporter URL : "+hyraxInstance.getReporterUrl());}
         	LogDataDto logDataDto = restTemplate.getForObject(
                     new URI(hyraxInstance.getReporterUrl() + "/log?since=" + since),
                     LogDataDto.class);
-        	//logg.info("collectLogs 2/3) retrieved log lines");
+        	if(logOutput) {logg.info("collectLogs 2/3) retrieved log lines");}
             /*
              	return restTemplate.getForObject(
                     new URI(hyraxInstance.getReporterUrl() + "/log?since=" + since),
                     LogDataDto.class);
             */
-        	//logg.info("collectLogs 3/3) returning ...");
+        	if(logOutput) {logg.info("collectLogs 3/3) returning ...");}
         	return logDataDto;
         } catch (HttpClientErrorException e){
         	//TODO fix collectLogs so that if reporter is offline program will report issue and continue.
-        	//logg.info("collectLogs 2e/3) /!\\ HttpClientErrorException : "+e.getMessage()+" /!\\");
+        	if(logOutput) {logg.info("collectLogs 2e/3) /!\\ HttpClientErrorException : "+e.getMessage()+" /!\\");}
         	LogDataDto logDataDto = new LogDataDto();
-        	//logg.info("collectLogs 3e/3) returning");
+        	if(logOutput) {logg.info("collectLogs 3e/3) returning");}
         	return logDataDto;
         } catch (URISyntaxException e) {
-        	//logg.info("/!\\ URISyntaxxception - collectLogs() : "+e.getMessage()+" /!\\");
+        	if(logOutput) {logg.info("/!\\ URISyntaxxception - collectLogs() : "+e.getMessage()+" /!\\");}
             e.printStackTrace();
             throw new IllegalStateException();
         } 
@@ -89,7 +90,7 @@ public class LogCollectorServiceImpl implements LogCollectorService {
                     new URI(hyraxInstance.getReporterUrl() + "/log"),
                     LogDataDto.class);
         } catch (URISyntaxException e) {
-        	//logg.info("/!\\ Error - collectAllLogs() : "+e.getMessage()+" /!\\");
+        	if(logOutput) {logg.info("/!\\ Error - collectAllLogs() : "+e.getMessage()+" /!\\");}
             e.printStackTrace();
             throw new IllegalStateException();
         }

@@ -32,9 +32,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
-import org.opendap.harvester.service.TimeDateUtilService;
+import org.opendap.harvester.service.DateTimeUtilService;
+import org.springframework.stereotype.Service;
 
-public class TimeDateUtilServiceImpl implements TimeDateUtilService {
+@Service
+public class DateTimeUtilServiceImpl implements DateTimeUtilService {
 	
 	private SimpleDateFormat formatter6 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
 
@@ -63,7 +65,7 @@ public class TimeDateUtilServiceImpl implements TimeDateUtilService {
 	 * 
 	 */
 	@Override
-	public String convertDatetoString(String rubbish) {
+	public String convertDateToString(String rubbish) {
 		Date date = null;
 		
 		try {
@@ -155,5 +157,59 @@ public class TimeDateUtilServiceImpl implements TimeDateUtilService {
 					return "NoMonth!!!WeAreAllGonnaDie!!!!";
 			}
 	}// end determineMonth()
+	
+	public String determineEndMonth(String startMonth) {
+		
+		String month = startMonth.substring(0, startMonth.length() - 4).trim();
+		int end;
+		int year = Integer.parseInt(startMonth.substring(startMonth.length() - 4));
+		
+		switch (month){
+		case "January":
+			end = 2;
+			break;
+		case "Febuary":
+			end = 3;
+			break;
+		case "March":
+			end = 4;
+			break;
+		case "April":
+			end = 5;
+			break;
+		case "May":
+			end = 6;
+			break;
+		case "June":
+			end = 7;
+			break;
+		case "July":
+			end = 8;
+			break;
+		case "August":
+			end = 9;
+			break;
+		case "September":
+			end = 10;
+			break;
+		case "October":
+			end = 11;
+			break;
+		case "November":
+			end = 12;
+			break;
+		case "December":
+			end = 1;
+			year++;
+			break;
+		default:
+			end = 0;
+			break;
+		}
+		
+		String endMonth = determineMonth(end);
+
+		return endMonth +" "+ year;
+	}
 	
 }

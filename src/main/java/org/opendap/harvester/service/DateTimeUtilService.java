@@ -26,11 +26,12 @@
 package org.opendap.harvester.service;
 
 
-public interface TimeDateUtilService {
+public interface DateTimeUtilService {
 	int convertDateToMonthLength(String rubbish);
-	String convertDatetoString(String rubbish);
+	String convertDateToString(String rubbish);
 	int convertDateToDayInt(String rubbish);
 	int determineDayOfWeek(String rubbish);
 	String determineMonth(int num);
+	String determineEndMonth(String startMonth);
 		
 }

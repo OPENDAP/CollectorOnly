@@ -23,20 +23,18 @@
  You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 */
 
-package org.opendap.harvester.dao;
+package org.opendap.harvester.service;
 
-import org.opendap.harvester.entity.document.LogLine;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
-
+import org.opendap.harvester.entity.document.MonthTotals;
 import java.util.List;
-import java.util.stream.Stream;
 
-@Repository
-public interface LogLineRepository extends MongoRepository<LogLine, String> {
-    Stream<LogLine> streamByHyraxInstanceId(String hyraxInstanceId);
-    Stream<LogLine> streamByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId);
-    List<LogLine> findByHyraxInstanceId(String hyraxInstanceId);
-    Long countByHyraxInstanceId(String hyraxInstanceId);
-    Long countByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId);
+public interface MonthTotalsService {
+	
+	void addMonthTotal(String hyraxInstanceId, String mmYYYY, int logs, int btyes);
+	
+	List<MonthTotals> findAllMonthTotals(String hyraxInstanceId);
+	MonthTotals findMonthTotal(String hyraxInstanceId, String monthYear);
+	
+	void saveMonthTotals(MonthTotals monthTotal);
+	
 }
