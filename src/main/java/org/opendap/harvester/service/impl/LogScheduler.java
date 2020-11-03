@@ -25,10 +25,13 @@
 
 package org.opendap.harvester.service.impl;
 
+import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.dao.HyraxInstanceRepository;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.LogDataDto;
 import org.opendap.harvester.service.LogCollectorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -46,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LogScheduler {
+	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
 
@@ -69,6 +73,7 @@ public class LogScheduler {
         return () -> {
             System.out.println("--------------");
             System.out.println(Instant.now().toString());
+            //logg.info("Getting Logs from " + hyraxInstance.getName());
             System.out.println("Getting Logs from " + hyraxInstance.getName());
             LogDataDto logDataDto = logCollectorService.collectAllLogs(hyraxInstance);
             int size = logDataDto.getLines().size();

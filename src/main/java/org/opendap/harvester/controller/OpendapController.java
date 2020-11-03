@@ -38,8 +38,13 @@ package org.opendap.harvester.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.opendap.harvester.HarvesterApplication;
+import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.HyraxInstanceDto;
 import org.opendap.harvester.service.HyraxInstanceService;
+import org.opendap.harvester.service.LogLineService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,9 +53,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class OpendapController{
+	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
 	
 	@Autowired
 	private HyraxInstanceService hyraxInstanceService;
+	
+	@Autowired
+	private LogLineService logLineService;
 	
 	/**
 	 * access method for the opendap.jsp page
@@ -65,14 +74,31 @@ public class OpendapController{
 		String str = "OPENDAP Collector Home";
 		mav.addObject("message", str);
 		
-		List<HyraxInstanceDto> list = hyraxInstanceService.allHyraxInstances(true)
+		List<HyraxInstanceDto> list = hyraxInstanceService.allHyraxInstances(false)
 				.map(hyraxInstanceService::buildDto)
 				.collect(Collectors.toList());
 				
-		String[] nameList = new String[list.size()];
+		String[][] nameList = new String[list.size()][6];
 		int index = 0;
 		for(HyraxInstanceDto hid : list){
-			nameList[index] = hid.getName();
+			nameList[index][0] = hid.getName();
+			nameList[index][1] = hid.getAccessible().toString();
+			//nameList[index][1] = "placeholder"; max = (a > b) ? a : b;
+			nameList[index][2] = (hid.getErrorCount() != null) ? hid.getErrorCount().toString() : "0";
+			//nameList[index][2] = "placeholder";
+			nameList[index][3] = hid.getActive().toString();
+			HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hid.getName());
+			nameList[index][4] = ""+logLineService.findNumberLogLines(register.getId());
+			//log.info("LSP : "+register.getLastSuccessfulPull());
+			//log.info("LAT : "+register.getLastAccessTime());
+			String lsp;
+			if (register.getLastSuccessfulPull() == null) {
+				lsp = "Time Not Found";
+			}
+			else {
+				lsp = register.getLastSuccessfulPull().toString();
+			}
+			nameList[index][5] = lsp;
 			index++;
 		}//end for loop
 		

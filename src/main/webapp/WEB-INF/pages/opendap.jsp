@@ -35,6 +35,35 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<!-- <link type="text/css" href="<c:url value="/Style.css"/> "/> -->
+<style type="text/css">
+table {
+	border-collapse: collapse;
+	margin: 5px;"
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+th, td {
+	padding: 5px;
+	text-align: left;
+}
+
+tr.error td {
+	background-color: #ffb3b3;
+}
+
+tr.inactive td {
+	background-color: #b3b3ff;
+}
+
+tr.green td {
+	background-color: #b3ffb3;
+}
+
+</style>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>OPENDAP Collector Home</title>
 </head>
@@ -43,16 +72,30 @@
 		<h1>${message}</h1>
 	</div>
 	<div id="List" style="float:left;">
-		<table>
+		<table id="serverTable">
+			<tr>
+				<th>Reporters</th>
+				<th>Accessible</th>
+				<th>Failed Accesses</th>
+				<th>Currently Active</th>
+				<th>Number Pulled</th>
+				<th>Last Successful Pull</th>
+			</tr>
 			<c:forEach items="${items}" var="listItem">
+			
 				<tr>
 					<td>
 						<!-- <a href="/harvester/logLines?hyraxInstanceName=${listItem}"> -->
 						<!-- <a href="/healthcheck/server?hyraxInstanceName=${listItem}"> -->
-						<a href="./server?hyraxInstanceName=${listItem}">
-							<c:out value="${listItem}"></c:out>
+						<a href="./server?hyraxInstanceName=${listItem[0]}"> 
+							<c:out value="${listItem[0]}"></c:out>
 						</a>
-					</td>
+						</td>
+					<td>${listItem[1]}</td>
+					<td>${listItem[2]}</td>
+					<td>${listItem[3]}</td>
+					<td>${listItem[4]}</td>
+					<td>${listItem[5]}</td>
 				</tr>
 			</c:forEach>
 		</table>
@@ -67,5 +110,22 @@
 		<div id="StatisticsBtn">
 		</div>
 	</div>
+	<script type="text/javascript">
+			var table = document.getElementById('serverTable');
+			var l = table.rows.length;
+			for (var x = 1, y = l; x < y; x ++){
+				var accessible = table.rows[x].cells[1].innerHTML;
+				var active = table.rows[x].cells[3].innerHTML;
+				if(active == "false"){
+					table.rows[x].classList.add("inactive");
+				}
+				else if (accessible == "false"){
+					table.rows[x].classList.add("error");
+				}
+				else{
+					table.rows[x].classList.add("green");
+				}
+			}
+	</script>
 </body>
 </html>

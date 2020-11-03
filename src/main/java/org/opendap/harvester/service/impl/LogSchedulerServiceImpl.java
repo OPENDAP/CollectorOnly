@@ -47,7 +47,8 @@ import java.time.ZonedDateTime;
  */
 @Service
 public class LogSchedulerServiceImpl implements LogSchedulerService {
-	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	private boolean logOutput = false;
 	
     @Autowired
     private HyraxInstanceService hyraxInstanceService;
@@ -63,21 +64,44 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
         hyraxInstanceService.allHyraxInstances(true)
                 .filter(this::isTimeToCheck)
                 .forEach(hi -> {
-                	try {
-	                    LogDataDto logDataDto;
-	                    ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
-		                    if (hi.getLastAccessTime() == null){
-		                        logDataDto = logCollectorService.collectAllLogs(hi);
-		                    } else {
-		                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastAccessTime());
-		                    }
-	                    hyraxInstanceService.updateLastAccessTime(hi, utc.toLocalDateTime());
-	                    logLineService.addLogLines(hi.getId(), logDataDto.getLines());
-                    }catch (Error e) {
-			    		log.error("/!\\ LogCollectorServiceImpl.java - checkHyraxInstances() : "+e.getMessage()+" /!\\");
-			    	}
-                });
-    }
+                    LogDataDto logDataDto;
+                    ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
+                    if (hi.getLastAccessTime() == null){
+                        logDataDto = logCollectorService.collectAllLogs(hi);
+                        if(logOutput) {logg.info(" /!\\ collectAllLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
+                    } else {
+                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastAccessTime());
+                        if(logOutput) {logg.info(" /!\\ collectLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
+                    }
+                    
+                    hyraxInstanceService.updateLastAccessTime(hi, utc.toLocalDateTime());
+                    if(logOutput) {logg.info("checkHyraxInstances() updated last access time");}
+                    
+                    if(logDataDto.numOfLines() != -1) {
+                    	if(logOutput) {logg.info("checkHyraxInstances() num of log lines != -1");}
+                    	hyraxInstanceService.updateLastSuccessPullTime(hi, utc.toLocalDateTime());
+                    	if(logOutput) {logg.info("checkHyraxInstances() updated last successful pull time");}
+                    	logLineService.addLogLines(hi.getId(), logDataDto.getLines());
+                    	if(logOutput) {logg.info("checkHyraxInstances() log lines added");}
+                    	if (hi.getAccessible() == null || !hi.getAccessible()) {
+                    		hyraxInstanceService.updateAccessibleStatus(hi, true);
+                    		if(logOutput) {logg.info("checkHyraxInstances() updated accessible status");}
+                    		hyraxInstanceService.updateErrorCount(hi, 0, true);
+                    		if(logOutput) {logg.info("checkHyraxInstances() updated error count");}
+                    		//holding for later date, will be used to track error intervals. SBL 12.12.19
+                    		//hyraxInstanceService.updateErrorCountList(hi);
+                    		//logg.info("checkHyraxInstances() updated error count list");
+                    	}
+                    }
+                    else {
+                    	if(logOutput) {logg.info("checkHyraxInstances() error handler");}
+                    	hyraxInstanceService.updateAccessibleStatus(hi, false);
+                    	if(logOutput) {logg.info("checkHyraxInstances() updated accessible status");}
+                    	hyraxInstanceService.updateErrorCount(hi, 1, false);
+                    	if(logOutput) {logg.info("checkHyraxInstances() updated error count");}
+                    }
+                }); //.filter(...).forEach()
+    }//checkHyraxinstances()
 
     private boolean isTimeToCheck(HyraxInstance hyraxInstance) {
         if (hyraxInstance.getLastAccessTime() == null) {

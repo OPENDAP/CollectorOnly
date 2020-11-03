@@ -23,20 +23,21 @@
  You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 */
 
-package org.opendap.harvester.dao;
+package org.opendap.harvester.entity.dto.model;
 
-import org.opendap.harvester.entity.document.LogLine;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.URL;
 
-import java.util.List;
-import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 
-@Repository
-public interface LogLineRepository extends MongoRepository<LogLine, String> {
-    Stream<LogLine> streamByHyraxInstanceId(String hyraxInstanceId);
-    Stream<LogLine> streamByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId);
-    List<LogLine> findByHyraxInstanceId(String hyraxInstanceId);
-    Long countByHyraxInstanceId(String hyraxInstanceId);
-    Long countByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId);
+public class HyraxInstanceNameHostsModel {
+	@Getter @Setter
+    @URL
+    @NotBlank
+    private String hyraxInstanceName;
+    @Getter @Setter
+    private String month;
+    @Getter @Setter
+    private String host = "";
 }

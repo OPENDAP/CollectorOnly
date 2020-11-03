@@ -30,67 +30,199 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="Style.css"> -->
+<style type="text/css">
+table {
+	border-collapse: collapse;
+	margin: 5px;"
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+th, td {
+	padding: 5px;
+	text-align: left;
+}
+</style>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Server Details</title>
 </head>
 <body>
 	<h1>Server Details</h1>
-	<div id="Details">
+	<div id="Details" style="float:left">
 		<table>
 			<tr>
-				<td><h3>ID: </h3></td>
-				<td><h4>${serverId}</h4></td>
+				<th>ID:</th>
+				<td>${serverId}</td>
 			</tr>
 			<tr>
-				<td><h3>Server URL: </h3></td>
-				<td><h4>${serverUrl}</h4></td>
+				<th>Server URL: </th>
+				<td>${serverUrl}</td>
 			</tr>
 			<tr>
-				<td><h3>Reporter URL: </h3></td>
-				<td><h4>${reporterUrl}</h4></td>
+				<th>Reporter URL: </th>
+				<td>${reporterUrl}</td>
 			</tr>
 			<tr>
-				<td><h3>Ping Interval: </h3></td>
-				<td><h4>${ping}</h4></td>
+				<th>Ping Interval:</th>
+				<td>${ping}</td>
 			</tr>
 			<tr>
-				<td><h3># of Logs to Pull: </h3></td>
-				<td><h4>${log}</h4></td>
+				<th># of Logs to Pull: </th>
+				<td>${log}</td>
 			</tr>
 			<tr>
-				<td><h3># of Logs Pulled to Date: </h3></td>
-				<td><h4>${number}</h4></td>
+				<th># of Logs Pulled to Date: </th>
+				<td>${number}</td>
 			</tr>
 			<tr>
-				<td><h3>Software Version: </h3></td>
-				<td><h4>${version}</h4></td>
+				<th>Software Version: </th>
+				<td>${version}</td>
 			</tr>
 			<tr>
-				<td><h3>Date Registered: </h3></td>
-				<td><h4>${registrationTime}</h4></td>
+				<th>Is Currently Accessible: </th>
+				<td>${isRunning}</td>
 			</tr>
 			<tr>
-				<td><h3>Last Accessed: </h3></td>
-				<td><h4>${lastAccessTime}</h4></td>
+				<th>Date Registered: </th>
+				<td>${registrationTime}</td>
 			</tr>
 			<tr>
-				<td><h3>Currently Active: </h3></td>
-				<td><h4>${active}</h4></td>
+				<th>Last Accessed: </th>
+				<td>${lastAccessTime}</td>
+			</tr>
+			<tr>
+				<th>Last Successful Pull: </th>
+				<td>${lastSuccessfulPull}</td>
+			</tr>
+			<tr>
+				<th>Currently Active: </th>
+				<td>${active}</td>
 			</tr>	
 		</table>
+	</div>
+	<div id="Controls" style="float:right;">
+	<h2>Controls</h2>
 		Server Access Logs
+		<br/> &emsp;
 		<a href="./harvester/logLines?hyraxInstanceName=${name}">
 			(Last 500)
 		</a>
+		<br/> &emsp;
 		<a href="./harvester/logLines?hyraxInstanceName=${name}&bonus=true">
 			(All)
-		</a><br/>
+		</a>
+		<br/>
+		<a href="./months?hyraxInstanceName=${name}">
+			View monthly breakdowns
+		</a>
+		<br/>
+		<button type="button" id="repullBtn" onclick="javascript:repull()">
+			Clear and Re-Pull Server Logs
+		</button> 
+		<!-- 
 		<a href="./repull?hyraxInstanceName=${name}">
 			Clear and Re-Pull Server Logs
-		</a><br/>
+		</a> 
+		 -->
+		<br/>
+		<a href="./toggleActive?hyraxInstanceName=${name}">
+			Toggle Reporter Active Status
+		</a>
+		<br/>
+		<button type="button" id="removeBtn" onclick="javascript:remove()">
+			Remove Server
+		</button> 
+		<!-- 
 		<a href="./remove?hyraxInstanceName=${name}">
 			Remove Server
 		</a>
+		 -->
+		<br/>
+		<br/>
+		Current Error Count : ${errorCount} <br/>
+		<!--
+		Previous Error Counts : <br/>
+		<table>
+			<c:forEach items="${items}" var="listItem">
+				<tr>
+					<td>
+						Error Count: ${listItem}
+					</td>
+				</tr>
+			</c:forEach>
+		</table>
+		-->
 	</div>
+	<script>
+		var serverName = '${name}';
+		//console.log("Name: "+ serverName);
+	
+		function repull() {
+			//console.log("repull() called");
+			if (confirm("Are you sure you want to clear and repull all log data?")){
+				//console.log("Yes: beginning repull ...");
+				
+				var fctData = {
+						hyraxInstanceName : serverName
+				}
+				
+				$.ajax({
+					type: "POST",
+					url: "./repull",
+					data: fctData,
+					success: function (textStatus, status) {
+				        //console.log(textStatus);
+				        //console.log(status);
+				        location.reload();
+					},
+					error: function(xhr, textStatus, error) {
+				        //console.log(xhr.responseText);
+				        //console.log(xhr.statusText);
+				        //console.log(textStatus);
+				        //console.log(error);
+					}
+				});
+			}
+			else{
+				//console.log("No: cancelling ...");
+			}
+		}// end repull()
+		
+		function remove() {
+			//console.log("remove() called");
+			if (confirm("Are you sure you want to remove this reporter?")){
+				//console.log("Yes: beginning remove ...");
+				
+				var fctData = {
+						hyraxInstanceName : serverName
+				}
+				
+				$.ajax({
+					type: "POST",
+					url: "./remove",
+					data: fctData,
+					success: function (textStatus, status) {
+				        //console.log(textStatus);
+				        //console.log(status);
+				        location.replace("./opendap");
+					},
+					error: function(xhr, textStatus, error) {
+				        //console.log(xhr.responseText);
+				        //console.log(xhr.statusText);
+				        //console.log(textStatus);
+				        //console.log(error);
+					}
+				});
+			}
+			else{
+				//console.log("No: cancelling ...");
+			}
+		}// end repull()
+		
+	</script>
 </body>
 </html>
