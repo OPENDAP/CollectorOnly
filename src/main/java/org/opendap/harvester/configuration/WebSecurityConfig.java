@@ -43,7 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/healthcheck", "/home").permitAll()
                 .anyRequest().permitAll();
         
-//        http.csrf().disable();
+        http.csrf().disable();
         
     }
 

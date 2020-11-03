@@ -58,6 +58,10 @@
 				<td><h4>${log}</h4></td>
 			</tr>
 			<tr>
+				<td><h3># of Logs Pulled to Date: </h3></td>
+				<td><h4>${number}</h4></td>
+			</tr>
+			<tr>
 				<td><h3>Software Version: </h3></td>
 				<td><h4>${version}</h4></td>
 			</tr>
@@ -74,8 +78,15 @@
 				<td><h4>${active}</h4></td>
 			</tr>	
 		</table>
+		Server Access Logs
 		<a href="./harvester/logLines?hyraxInstanceName=${name}">
-			Server Access Logs
+			(Last 500)
+		</a>
+		<a href="./harvester/logLines?hyraxInstanceName=${name}&bonus=true">
+			(All)
+		</a><br/>
+		<a href="./repull?hyraxInstanceName=${name}">
+			Clear and Re-Pull Server Logs
 		</a><br/>
 		<a href="./remove?hyraxInstanceName=${name}">
 			Remove Server

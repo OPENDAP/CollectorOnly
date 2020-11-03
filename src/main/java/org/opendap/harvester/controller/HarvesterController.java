@@ -115,7 +115,7 @@ public class HarvesterController {
 	                registerModel.getPing(),
 	                registerModel.getLog());
     	log.info("/regPOST.2/2) instance registered, returning <<");
-    	return register.getServerUUID();//.toString();
+    	return hyraxInstanceService.buildDto(register);
     }//end registerPost()
     */
     
@@ -127,7 +127,7 @@ public class HarvesterController {
     @ResponseBody
     public void registerPost() throws Exception {
     	log.info("/regPOST.1/2) registration entry");
-    	log.info("/regPOST.2/2) returing <<");
+    	log.info("/regPOST.2/2) returning <<");
     }
     */
     
@@ -140,6 +140,7 @@ public class HarvesterController {
     @RequestMapping(path = "/registration", method = RequestMethod.PUT)
     @ResponseBody
     public HyraxInstanceDto registerPut(@Valid @ModelAttribute UpdateModel updateModel) throws Exception {   
+
     	HyraxInstance updated = hyraxInstanceService.updateInstance(updateModel);
     	return updated;
     } //end registerPut() 

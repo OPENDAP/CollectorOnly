@@ -70,6 +70,29 @@ public class LogLineServiceImpl implements LogLineService {
                 .map(this::buildDto)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<LogLineDto> findLogLines(String hyraxInstanceId, int count) {
+    	List<LogLineDto> logs = logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
+                .map(this::buildDto)
+                .collect(Collectors.toList());
+    	
+    	int index = logs.size() - count;
+    	if( index < 0) {
+    		index = 0;
+    	}
+    	
+        return logs.subList(index, logs.size());
+    }
+    
+    @Override
+    public int findNumberLogLines(String hyraxInstanceId) {
+    	List<LogLineDto> logs = logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
+                .map(this::buildDto)
+                .collect(Collectors.toList());
+    	return logs.size();
+    }
+    
 
     @Override
     public String findLogLinesAsString(String hyraxInstanceId) {

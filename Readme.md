@@ -68,25 +68,26 @@ The application will be started at `server.port.`
 
 ## INSTALLATION
 * For installing Collector on Tomcat server
-  - clone repo from github
-  - build using ```./gradlew war ```
-  - copy war file to tomcat/webapps
-  - start tomcat
+     - clone repo from github
+     - build using ```./gradlew war ```
+     - copy war file to tomcat/webapps
+     - start tomcat
+
 
 * For installing Reporter on Tomcat server
-  - clone repo from github
-  - create /etc/olfs directory
-  - copy olfx_example.xml from reporter repo to /etc/olfs directory
-  - rename olfx_example.xml to olfs.xml
-    * change in olfs.xml
-      * ServerUrl - url of hyrax server
-      * ReporterUrl - url of reporter
-      * logNumber - number of log lines to pull
-      * DefaultPing - time delay between pulls
-      * HyraxLogfilePath - path to servers log file
-  - build using ```./gradlew war```
-  - copy war file to tomcat/webapps
-  - start tomcat
+     - clone repo from github
+     - create /etc/olfs directory
+     - copy olfx_example.xml from reporter repo to /etc/olfs directory
+     - rename olfx_example.xml to olfs.xml
+           - change in olfs.xml
+           - ServerUrl - url of hyrax server
+           - ReporterUrl - url of reporter
+           - logNumber - number of log lines to pull
+           - DefaultPing - time delay between pulls
+           - HyraxLogfilePath - path to servers log file
+     - build using ```./gradlew war```
+     - copy war file to tomcat/webapps
+     - start tomcat
 
 ## API
 All API methods:
