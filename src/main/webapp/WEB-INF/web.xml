@@ -29,7 +29,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee" 
 	version="2.4" id="WebApp_ID" >
 
-	<!--  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd -->
+	<!-- http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" --> 
 
 	<display-name>CollectorOnly</display-name>
 	<welcome-file-list>
