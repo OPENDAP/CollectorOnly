@@ -46,5 +46,10 @@ public class MonthTotals extends BaseEntity {
     public void addToByteCount(long logBytes) {
     	byteCount += logBytes;
     }
+    
+    public void reset() {
+    	logCount = (long) 0;
+    	byteCount = (long) 0;
+    }
 
 }
