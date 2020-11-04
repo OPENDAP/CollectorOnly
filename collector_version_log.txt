@@ -1,0 +1,7 @@
+
+Reporter Versions Log
+
+Version # 	  :	 Github Branch	  :	 Description of changes
+============================================================================================================
+1.0.1 		    :	 HK-695 		      :	 Added monthTotals class for monthly summary and added monthId to logLines
+------------------------------------------------------------------------------------------------------------
