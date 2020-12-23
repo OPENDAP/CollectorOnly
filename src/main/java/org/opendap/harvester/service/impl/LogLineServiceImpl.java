@@ -47,7 +47,8 @@ import java.util.stream.Collectors;
 @Service
 public class LogLineServiceImpl implements LogLineService {
 	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
-	private boolean logOutput = true;
+	private boolean logOutput = false;
+	private boolean verbose = false;
 	
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
@@ -102,18 +103,18 @@ public class LogLineServiceImpl implements LogLineService {
             	// for-each logLine we have received
             	// if (logOutput) {logg.info("addLogLines() : loop " + logLines.indexOf(ll));}
             	if (curMonth == null) {
-            		if (logOutput) {logg.info("addLogLines() : curMonth == null, first loop");}
+            		if (logOutput && verbose) {logg.info("addLogLines() : curMonth == null, first loop");}
             		//for the first logLine we process, init the whole process
 	            	if(monthTotalsRepository.existsMonthTotalByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId())) {
-	            		if (logOutput) {logg.info("addLogLines() : monthTotal exists, retrieving ...");}
+	            		if (logOutput && verbose) {logg.info("addLogLines() : monthTotal exists, retrieving ...");}
 	            		//check if MonthTtotal exists, if so retrieve
 	            		monthTotal = monthTotalsRepository.findByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId());
 	            		// set curMonth
 	            		curMonth = ll.getMonthId();
-	            		if (logOutput) {logg.info("addLogLines() : ... retrieved - month : " + monthTotal.getMonthId());}
+	            		if (logOutput && verbose) {logg.info("addLogLines() : ... retrieved - month : " + monthTotal.getMonthId());}
 	            	} 
 	            	else {
-	            		if (logOutput) {logg.info("addLogLines() : monthTotal does not exists ...");}
+	            		if (logOutput && verbose) {logg.info("addLogLines() : monthTotal does not exists ...");}
 	            		// MonthTotal doesn't exist, generate a new MonthTotal
 	            		monthTotal = MonthTotals.builder()
 	            				.hyraxInstanceId(ll.getHyraxInstanceId())
@@ -123,25 +124,25 @@ public class LogLineServiceImpl implements LogLineService {
 	            				.build();
 	            		//set curMonth
 	            		curMonth = ll.getMonthId();
-	            		if (logOutput) {logg.info("addLogLines() : ... generated - month : "+monthTotal.getMonthId());}	            		
+	            		if (logOutput && verbose) {logg.info("addLogLines() : ... generated - month : "+monthTotal.getMonthId());}	            		
 	            	} 
             	} //end if
             	else if (!ll.getMonthId().equals(curMonth)) {
-            		if (logOutput) {logg.info("addLogLines() : logline.Month != curmonth, curmonth : '" + curMonth + "' - log month : '" + ll.getMonthId() +"'");}
+            		if (logOutput && verbose) {logg.info("addLogLines() : logline.Month != curmonth, curmonth : '" + curMonth + "' - log month : '" + ll.getMonthId() +"'");}
             		//if in the same month
 	            	if(monthTotalsRepository.existsMonthTotalByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId())) {
-	            		if (logOutput) {logg.info("addLogLines() : monthTotal exists, retrieving ...");}
+	            		if (logOutput && verbose) {logg.info("addLogLines() : monthTotal exists, retrieving ...");}
 	            		//check if MonthTtotal exists, if so retrieve
 	            		monthTotal = monthTotalsRepository.findByHyraxInstanceIdAndMonthId(ll.getHyraxInstanceId(), ll.getMonthId());
 	            		// set curMonth
 	            		curMonth = ll.getMonthId();
-	            		if (logOutput) {logg.info("addLogLines() : ... retrieved - month : " + monthTotal.getMonthId());}
+	            		if (logOutput && verbose) {logg.info("addLogLines() : ... retrieved - month : " + monthTotal.getMonthId());}
 	            	} 
 	            	else {
-	            		if (logOutput) {logg.info("addLogLines() : monthTotal does not exists ...");}
+	            		if (logOutput && verbose) {logg.info("addLogLines() : monthTotal does not exists ...");}
 	            		// MonthTotal doesn't exist
 	            		if (monthTotal != null) {
-	            			if (logOutput) {logg.info("addLogLines() : saving pervious month - old month : "+monthTotal.getMonthId());}
+	            			if (logOutput && verbose) {logg.info("addLogLines() : saving pervious month - old month : "+monthTotal.getMonthId());}
 	            			//checking if a monthTotal already init-ed, if so save it before generating new one
 	            			monthTotalsRepository.save(monthTotal);
 	            		}
@@ -154,7 +155,7 @@ public class LogLineServiceImpl implements LogLineService {
 	            				.build();
 	            		// set curMonth
 	            		curMonth = ll.getMonthId();
-	            		if (logOutput) {logg.info("addLogLines() : ... generated - new month : "+monthTotal.getMonthId());}	            		
+	            		if (logOutput && verbose) {logg.info("addLogLines() : ... generated - new month : "+monthTotal.getMonthId());}	            		
 	            	} 
             	} //end else if
             	

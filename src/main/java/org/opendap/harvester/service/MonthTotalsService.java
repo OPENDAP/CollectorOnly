@@ -37,4 +37,7 @@ public interface MonthTotalsService {
 	
 	void saveMonthTotals(MonthTotals monthTotal);
 	
+	void clearMonthTotals(String hyraxInstanceId, String mmYYYY);
+	void clearAllMonthTotals(String hyraxInstanceId);
+	
 }

@@ -38,5 +38,5 @@ public interface LogLineRepository extends MongoRepository<LogLine, String> {
     Stream<LogLine> streamByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId);
     List<LogLine> findByHyraxInstanceId(String hyraxInstanceId);
     Long countByHyraxInstanceId(String hyraxInstanceId);
-    Long countByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId);
+    Long countByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId); // false error, do not remove! - SBL 11.3.20 
 }

@@ -71,6 +71,23 @@ public class MonthTotalsServiceImpl implements MonthTotalsService {
 		monthTotalsRepository.save(monthTotal);
 	} //end saveMonthTotals
 
+	@Override
+	public void clearMonthTotals(String hyraxInstanceId, String mmYYYY) {
+		MonthTotals monthTotal = monthTotalsRepository.findByHyraxInstanceIdAndMonthId(hyraxInstanceId, mmYYYY);
+		monthTotal.reset();
+		monthTotalsRepository.save(monthTotal);
+		
+	} //end clearMonthTotals
+
+	@Override
+	public void clearAllMonthTotals(String hyraxInstanceId) {
+		List<MonthTotals> monthTotals = monthTotalsRepository.findByHyraxInstanceId(hyraxInstanceId);
+		for(MonthTotals mt : monthTotals) {
+			mt.reset();
+			monthTotalsRepository.save(mt);
+		} //end foreach
+	} //end clearAllMonthTotals
+
 
     
 }//end class MonthTotalsServiceImpl

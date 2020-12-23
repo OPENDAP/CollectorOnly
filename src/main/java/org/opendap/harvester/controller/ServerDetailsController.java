@@ -57,7 +57,7 @@ import org.springframework.web.servlet.ModelAndView;
 //@RequestMapping("/server")
 public class ServerDetailsController{
 	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
-	private boolean logOutput = true;
+	private boolean logOutput = false;
 	private boolean verbose = false;
 	
 	@Autowired
@@ -137,7 +137,7 @@ public class ServerDetailsController{
 		// BUILDING THE ITEMS FOR THE JSP PAGE
 		/////////////////////////////////////////////
 		
-		//log.info("building table items");
+		if(logOutput) {log.info("building table items");}
 		String[][] tableItems = new String[monthTotals.size()][3];
 		
 		int index = 0;
@@ -190,7 +190,7 @@ public class ServerDetailsController{
 			// CALCULATE HOST DATA FOR TABLE
 			
 			String name = lld.getValues().get("host");
-			if(logOutput) {log.info("showHosts() : log line host : " + name);}
+			if(logOutput &&  verbose) {log.info("showHosts() : log line host : " + name);}
 			if (names.contains(name)) { //if user agent has already been added
 				//increase the count for the user agent
 				hostCount.set(names.indexOf(name), hostCount.get(names.indexOf(name)) + 1);
@@ -442,26 +442,36 @@ public class ServerDetailsController{
 	@RequestMapping(path="/repull", method = RequestMethod.POST)
 	@ResponseBody
 	public String repullReporterLogsPOST(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
-		//log.info("repullReporterLogsPOST() entered ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : entered ...");}
+		
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
-		//log.info("repullReporterLogsPOST() instance found ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : instance found ...");}
+		
 		String hyraxInstanceId = register.getId();
-		//log.info("repullReporterLogsPOST() id found ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : id found ...");}
+		
 		ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
-		//log.info("repullReporterLogsPOST() timezone found ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : timezone found ...");}
 		
 		logLineService.removeLogLines(hyraxInstanceId);
-		//log.info("repullReporterLogsPOST() log lines removed ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : log lines removed ...");}
+		
+		monthTotalsService.clearAllMonthTotals(hyraxInstanceId);
+		if(logOutput) {log.info("repullReporterLogsPOST() : Month Totals reset ...");}
+		
 		LogDataDto logDataDto = logCollectorService.collectAllLogs(register);
-		//log.info("repullReporterLogsPOST() collected new log lines ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : collected new log lines ...");}
+		
 		hyraxInstanceService.updateLastAccessTime(register, utc.toLocalDateTime());
-		//log.info("repullReporterLogsPOST() updated last access time ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : updated last access time ...");}
+		
 		hyraxInstanceService.updateLastSuccessPullTime(register, utc.toLocalDateTime());
-		//log.info("repullReporterLogsPOST() updated last success pull time ...");
+		if(logOutput) {log.info("repullReporterLogsPOST() : updated last success pull time ...");}
+		
         logLineService.addLogLines(hyraxInstanceId, logDataDto.getLines());
-        //log.info("repullReporterLogsPOST() added new log lines ...");
+        if(logOutput) {log.info("repullReporterLogsPOST() : added new log lines ...");}
         
-        //log.info("repullReporterLogsPOST() returning <<");
+        if(logOutput) {log.info("repullReporterLogsPOST() : returning <<");}
         return "Type : OK, Status : 200";
 	}//end repullReporterLogs()
 	
