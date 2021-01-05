@@ -25,12 +25,14 @@
 
 package org.opendap.harvester.controller;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 import org.opendap.harvester.HarvesterApplication;
+import org.opendap.harvester.entity.document.DownTimes;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.document.MonthTotals;
 import org.opendap.harvester.entity.dto.LogDataDto;
@@ -46,6 +48,7 @@ import org.opendap.harvester.service.MonthTotalsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,6 +62,9 @@ public class ServerDetailsController{
 	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
 	private boolean logOutput = false;
 	private boolean verbose = false;
+	
+	@Value("${harvester.version}")
+    private String harvesterVersion;
 	
 	@Autowired
 	private HyraxInstanceService hyraxInstanceService;
@@ -86,26 +92,151 @@ public class ServerDetailsController{
 	@RequestMapping(path="/server", method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView serverDetails(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
+		if(logOutput) {log.info("serverDetails() fct start ... ");}
+		long starttime = System.nanoTime();
+		
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
+		if(logOutput) {log.info("serverDetails() 	found hyraxinstance");}
+		if(logOutput) {log.info("serverDetails() 	creating model and view ...");}
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("serverDetails");
 		
-		mav.addObject("serverId", register.getServerUUID());
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// SERVER INFORMATION
+		/////////////////////////////////////////
+		
+		if(logOutput) {log.info("//////////////////////////////////////////////////");}
+		if(logOutput) {log.info("serverDetails() 		setting server info ...");}
 		mav.addObject("serverUrl", register.getName());
+		mav.addObject("serverVer", register.getVersionNumber());
+		mav.addObject("serverRun", (register.getServerRunning() == null) ? "server status currently unknown" : register.getServerRunning());
+		mav.addObject("serverLAT", (register.getServerLastAccessTime() == null) ? "server last access time unknown" : dateTimeUtilService.convertDatetoReadible(register.getServerLastAccessTime()));
+		mav.addObject("serverLET", (register.getServerLastErrorTime() == null) ? "server last error time unknown" : dateTimeUtilService.convertDatetoReadible(register.getServerLastErrorTime()));
+		if(logOutput) {log.info("serverDetails() 		... server info set");}
+		
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// REPORTER INFORMATION
+		/////////////////////////////////////////
+		if(logOutput) {log.info("//////////////////////////////////////////////////");}
+		if(logOutput) {log.info("serverDetails() 		setting reporter info ...");}
+		mav.addObject("serverId", register.getServerUUID());
 		mav.addObject("reporterUrl", register.getReporterUrl());
+		mav.addObject("reporterVer", (register.getReporterVersionNumber() == null) ? "reporter version unknown" : register.getReporterVersionNumber());
 		mav.addObject("ping", logLineParsingUtilService.createInterval(register.getPing()));
 		mav.addObject("log", register.getLog());
-		mav.addObject("version", register.getVersionNumber());
-		mav.addObject("registrationTime", register.getRegistrationTime());
-		mav.addObject("lastAccessTime", register.getLastAccessTime());
-		mav.addObject("active", register.getActive());
-		mav.addObject("name", register.getName());
 		mav.addObject("number", logLineService.findNumberLogLines(register.getId()));
-		mav.addObject("isRunning", register.getAccessible());
-		mav.addObject("lastSuccessfulPull", register.getLastSuccessfulPull());
-		mav.addObject("errorCount", register.getErrorCount());
-		//mav.addObject("items", register.getPreviousErrorCount().toArray());
+		register.setReporterRunning(register.getAccessible());
+		mav.addObject("reporterRun", register.getReporterRunning());
+		mav.addObject("reporterRT", dateTimeUtilService.convertDatetoReadible(register.getRegistrationTime()));
+		mav.addObject("reporterLAT", (register.getLastAccessTime() == null) ? "reporter last access time unknown" : dateTimeUtilService.convertDatetoReadible(register.getLastAccessTime()));
+		mav.addObject("reporterLSP", (register.getLastSuccessfulPull() == null) ? "reporter last successful pull time unknown" : dateTimeUtilService.convertDatetoReadible(register.getLastSuccessfulPull()));
+		mav.addObject("reporterLET", (register.getReporterLastErrorTime() == null) ? "reporter last error time unknown" : dateTimeUtilService.convertDatetoReadible(register.getReporterLastErrorTime()));
+		mav.addObject("active", register.getActive());
 		
+		mav.addObject("name", register.getName());
+		if(logOutput) {log.info("serverDetails() 		... reporter info set");}
+		
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// SERVER HISTORY
+		/////////////////////////////////////////
+		
+		if(logOutput) {log.info("//////////////////////////////////////////////////");}
+		if(logOutput) {log.info("serverDetails() 		setting server history info ...");}
+		if(register.getServerDownTimes() == null) {
+			register.initServerDownTime();
+		}
+		
+		int size = (register.getServerDownTimes().size() < 5) ? register.getServerDownTimes().size() : 5;
+		String[][] serverHistory = new String[size][3];
+		if(logOutput) {log.info("serverDetails() 			- serverhistory[][] created");}
+		
+		List<DownTimes> dts = null;
+		if (register.getServerDownTimes().size() < 5) {
+			dts = register.getServerDownTimes();
+		}
+		if (register.getServerDownTimes().size() >= 5) {
+			dts = register.getServerDownTimes().subList(register.getServerDownTimes().size() - 5, register.getServerDownTimes().size());
+		}
+		if(logOutput) {log.info("serverDetails() 			- list<DownTimes> retrieved");}
+		
+		int index = 0;
+		for (DownTimes dt : dts) {
+			if(logOutput) {log.info("serverDetails() 			- dates : "+dt.getStart()+" | "+dt.getEnd());}
+			serverHistory[index][0] = (dt.getStart() == null) ? "start date not known" : dateTimeUtilService.convertDatetoReadible(dt.getStart());
+			serverHistory[index][1] = (dt.getEnd() == null) ? "end date not known" : dateTimeUtilService.convertDatetoReadible(dt.getEnd());
+			
+			if(logOutput) {log.info("serverDetails() 			- generating interval ...");}
+			String interval = "Interval Unknown";
+			if ((dt.getStart() != null) && (dt.getEnd() != null)) {
+				if(logOutput) {log.info("serverDetails() 				- both times present");}
+				interval = dateTimeUtilService.determineInterval(dt.getStart(), dt.getEnd());
+			}
+			else if (dt.getStart() != null && dt.getEnd() == null && index == dts.size() - 1) {
+				if(logOutput) {log.info("serverDetails() 				- start time present, end time null, last entry");}
+				LocalDateTime ldt = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
+				if(logOutput) {log.info("serverDetails() 			- time 1 :"+dt.getStart() + " | time 2 : "+ ldt);}
+				interval = dateTimeUtilService.determineInterval(dt.getStart(), ldt);
+			}
+			if(logOutput) {log.info("serverDetails() 			- ... interval generated : "+ interval);}
+			serverHistory[index][2] = interval;
+			
+			index++;
+		}
+		if(logOutput) {log.info("serverDetails() 		... server history info set");}
+		
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// REPORTER HISTORY
+		/////////////////////////////////////////
+		
+		if(logOutput) {log.info("//////////////////////////////////////////////////");}
+		if(logOutput) {log.info("serverDetails() 		setting reporter history info ...");}
+		if(register.getReporterDownTimes() == null) {
+			register.initReporterDownTime();
+		}
+		
+		size = (register.getReporterDownTimes().size() < 5) ? register.getReporterDownTimes().size() : 5;
+		String[][] reporterHistory = new String[size][3];
+		
+		if (register.getReporterDownTimes().size() < 5) {
+			dts = register.getReporterDownTimes();
+		}
+		if (register.getReporterDownTimes().size() >= 5) {
+			dts = register.getReporterDownTimes().subList(register.getReporterDownTimes().size() - 5, register.getReporterDownTimes().size());
+		}
+		
+		index = 0;
+		for (DownTimes dt : dts) {
+			
+			reporterHistory[index][0] = (dt.getStart() == null) ? "start date not known" : dateTimeUtilService.convertDatetoReadible(dt.getStart());
+			reporterHistory[index][1] = (dt.getEnd() == null) ? "end date not known" : dateTimeUtilService.convertDatetoReadible(dt.getEnd());
+			
+			String interval = "Interval Unknown";
+			if ((dt.getStart() != null) && (dt.getEnd() != null)) {
+				interval = dateTimeUtilService.determineInterval(dt.getStart(), dt.getEnd());
+			}
+			else if (dt.getStart() != null && dt.getEnd() == null && index == dts.size() - 1) {
+				LocalDateTime ldt = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
+				if(logOutput) {log.info("serverDetails() 			- time 1 :"+dt.getStart() + " | time 2 : "+ ldt);}
+				interval = dateTimeUtilService.determineInterval(dt.getStart(), ldt);
+			}
+			reporterHistory[index][2] = interval;
+			
+			index++;
+		}
+		if(logOutput) {log.info("serverDetails() 		... reporter history info set");}
+		
+		mav.addObject("serverHistory", serverHistory);
+		mav.addObject("reporterHistory", reporterHistory);
+		if(logOutput) {log.info("serverDetails() 	... model and view created");}
+		
+		mav.addObject("version", harvesterVersion);
+		
+		long endtime = System.nanoTime();
+		long duration = endtime - starttime;
+		String time =  logLineParsingUtilService.parseTime(duration);
+		mav.addObject("time", time);
+		
+		if(logOutput) {log.info("serverDetails() returning <<<");}
 		return mav;
 	}//end serverDetails()
 	
@@ -117,6 +248,8 @@ public class ServerDetailsController{
 	@ResponseBody
 	public ModelAndView showMonths(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
 		if(logOutput) {log.info("showMonths() entered ...");}
+		long starttime = System.nanoTime();
+		
 		HyraxInstance serverInstance = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("serverMonths");
@@ -126,11 +259,9 @@ public class ServerDetailsController{
 		/////////////////////////////////////////////
 		
 		if(logOutput) {log.info("retrieving monthTotals ...");}
-		long starttime = System.nanoTime();
-		
 		List<MonthTotals> monthTotals = monthTotalsService.findAllMonthTotals(serverInstance.getId());
 		
-		long endtime = System.nanoTime();
+		
 		if(logOutput) {log.info(" ... retrieved monthTotals");}
 		
 		//////////////////////////////////////////////////////////////////////////
@@ -148,11 +279,13 @@ public class ServerDetailsController{
 			index++;
 		}
 		
-		long duration = endtime - starttime;
-		String time =  logLineParsingUtilService.parseTime(duration);
-		
 		mav.addObject("serverName", serverInstance.getName());
 		mav.addObject("tableItems", tableItems);
+		mav.addObject("version", harvesterVersion);
+		
+		long endtime = System.nanoTime();
+		long duration = endtime - starttime;
+		String time =  logLineParsingUtilService.parseTime(duration);
 		mav.addObject("time", time);
 		
 		if(logOutput) {log.info("returning ...");}
@@ -163,6 +296,8 @@ public class ServerDetailsController{
 	@ResponseBody
 	public ModelAndView showHosts(@Valid @ModelAttribute HyraxInstanceNameHostsModel hyraxInstanceNameHostsModel) {
 		if(logOutput) {log.info("entering showHosts()");}
+		long starttime = System.nanoTime();
+		
 		HyraxInstance serverInstance = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameHostsModel.getHyraxInstanceName());
 		String month = hyraxInstanceNameHostsModel.getMonth();
 		ModelAndView mav = new ModelAndView();
@@ -310,6 +445,13 @@ public class ServerDetailsController{
 		mav.addObject("totals", totalItems);
 		mav.addObject("graph1Data", graph1Data);
 		
+		mav.addObject("version", harvesterVersion);
+		
+		long endtime = System.nanoTime();
+		long duration = endtime - starttime;
+		String time =  logLineParsingUtilService.parseTime(duration);
+		mav.addObject("time", time);
+		
 		return mav;
 	}//showHosts()
 	
@@ -317,6 +459,8 @@ public class ServerDetailsController{
 	@ResponseBody
 	public ModelAndView showHostDetails(@Valid @ModelAttribute HyraxInstanceNameHostsModel hyraxInstanceNameHostsModel) {
 		if(logOutput) {log.info("\t /!\\ Enter showHostDetails() ... /!\\");}
+		long starttime = System.nanoTime();
+		
 		HyraxInstance serverInstance = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameHostsModel.getHyraxInstanceName());
 		String month = hyraxInstanceNameHostsModel.getMonth();
 		String host = hyraxInstanceNameHostsModel.getHost();
@@ -364,6 +508,13 @@ public class ServerDetailsController{
 		mav.addObject("hostname", host);
 		mav.addObject("tableItems", tableItems);
 		
+		mav.addObject("version", harvesterVersion);
+		
+		long endtime = System.nanoTime();
+		long duration = endtime - starttime;
+		String time =  logLineParsingUtilService.parseTime(duration);
+		mav.addObject("time", time);
+		
 		if(logOutput) {log.info("\t showHostDetails() - returning << ");}
 		return mav;
 	}
@@ -400,20 +551,19 @@ public class ServerDetailsController{
 	@RequestMapping(path="/remove", method = RequestMethod.POST)
 	@ResponseBody
  	public String removeReporterPOST(@Valid @ModelAttribute HyraxInstanceNameModel hyraxInstanceNameModel) {
-		//log.info("/remove.1/5) removeReporter() entry, finding instance ...");
+		if(logOutput) { log.info("/remove.1/5) removeReporter() entry, finding instance ..."); }
 		HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hyraxInstanceNameModel.getHyraxInstanceName());
-		//log.info("/remove.2/5) found instance, retrieving id ...");
+		if(logOutput) { log.info("/remove.2/5) found instance, retrieving id ..."); }
 		String hyraxInstanceId = register.getId();
-		//log.info("/remove.3/5) id : "+ hyraxInstanceId +" - calling removeLogLines() ...");
+		if(logOutput) { log.info("/remove.3/5) id : "+ hyraxInstanceId +" - calling removeLogLines() ..."); }
 		logLineService.removeLogLines(hyraxInstanceId);
 		
 		//List<LogLineDto> list = logLineService.findLogLines(hyraxInstanceNameModel.getHyraxInstanceName());
 		//String name = list.get(0).getValues().get("host");
 		
-		
-		//log.info("/remove.4/5) log lines removed, calling removeHyraxInstance() ...");
+		if(logOutput) { log.info("/remove.4/5) log lines removed, calling removeHyraxInstance() ..."); }
 		hyraxInstanceService.removeHyraxInstance(hyraxInstanceId);
-		//log.info("/remove.5/5) hyrax removed, returning <<");
+		if(logOutput) { log.info("/remove.5/5) hyrax removed, returning <<"); }
 		return "Type : OK, Status : 200";
 	}//end removeReporter()
 

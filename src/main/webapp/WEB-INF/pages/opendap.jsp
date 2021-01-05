@@ -51,8 +51,12 @@ th, td {
 	text-align: left;
 }
 
-tr.error td {
+tr.serverError td {
 	background-color: #ffb3b3;
+}
+
+tr.reporterError td {
+	background-color: #ffba70;
 }
 
 tr.inactive td {
@@ -69,37 +73,45 @@ tr.green td {
 </head>
 <body>
 	<div id="Header" >
-		<h1>${message}</h1>
+		<h1 style="float:left;">${message}</h1>
+		<div style="float:right; text-align:right;">
+			Collector Version : ${version} <br/>
+			Page Generated : ${time}
+		</div>
 	</div>
 	<div id="List" style="float:left;">
 		<table id="serverTable">
 			<tr>
-				<th>Reporters</th>
-				<th>Accessible</th>
-				<th>Failed Accesses</th>
-				<th>Currently Active</th>
-				<th>Number Pulled</th>
-				<th>Last Successful Pull</th>
+				<th colspan="3">Profile</th>
+				<th colspan="1">Server</th>
+				<th colspan="2">Reporter</th>
+			</tr>
+			<tr>
+				<th>Instance</th>
+				<th>Active</th>
+				<th>Last Access Time</th>
+				<th>Running</th>
+				<th>Running</th>
+				<th>Logs Pulled</th>
 			</tr>
 			<c:forEach items="${items}" var="listItem">
 			
 				<tr>
-					<td>
-						<!-- <a href="/harvester/logLines?hyraxInstanceName=${listItem}"> -->
-						<!-- <a href="/healthcheck/server?hyraxInstanceName=${listItem}"> -->
+					<td> <!-- Profile Instance -->
 						<a href="./server?hyraxInstanceName=${listItem[0]}"> 
 							<c:out value="${listItem[0]}"></c:out>
 						</a>
 						</td>
-					<td>${listItem[1]}</td>
-					<td>${listItem[2]}</td>
-					<td>${listItem[3]}</td>
-					<td>${listItem[4]}</td>
-					<td>${listItem[5]}</td>
+					<td>${listItem[1]}</td> <!-- Profile Active -->
+					<td>${listItem[2]}</td> <!-- Profile Last Access Time -->
+					<td>${listItem[3]}</td> <!-- Server Running -->
+					<td>${listItem[4]}</td> <!-- Reporter Running -->
+					<td>${listItem[5]}</td> <!-- Reporter Logs Pulled -->
 				</tr>
 			</c:forEach>
 		</table>
 	</div>
+	<!-- 
 	<div id="Buttons">
 		<div id="AddServerBtn">
 			Add New Sever:
@@ -110,17 +122,22 @@ tr.green td {
 		<div id="StatisticsBtn">
 		</div>
 	</div>
+	-->
 	<script type="text/javascript">
 			var table = document.getElementById('serverTable');
 			var l = table.rows.length;
 			for (var x = 1, y = l; x < y; x ++){
-				var accessible = table.rows[x].cells[1].innerHTML;
-				var active = table.rows[x].cells[3].innerHTML;
+				var serverRunning = table.rows[x].cells[3].innerHTML;
+				var reporterRunning = table.rows[x].cells[4].innerHTML;
+				var active = table.rows[x].cells[1].innerHTML;
 				if(active == "false"){
 					table.rows[x].classList.add("inactive");
 				}
-				else if (accessible == "false"){
-					table.rows[x].classList.add("error");
+				else if (serverRunning == "false"){
+					table.rows[x].classList.add("serverError");
+				}
+				else if (reporterRunning == "false"){
+					table.rows[x].classList.add("reporterError");
 				}
 				else{
 					table.rows[x].classList.add("green");

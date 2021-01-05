@@ -96,12 +96,17 @@
 <title>Server Hosts</title>
 </head>
 <body>
-	<div>
-		<h3>Server: ${serverName}</h3><br/>
-		<h3>${month}</h3>
-		
+	<div id="Header" style="clear:right;">
+		<div style="float:left;">
+			<h2 style="clear:right;">Server: ${serverName}</h2>
+			<h3 style="clear:left;">${month}</h3>
+		</div>
+		<div style="float:right; text-align:right;">
+				Collector Version : ${version} <br/>
+				Page Generated : ${time}
+		</div>
 	</div>
-	<div class="tab">
+	<div class="tab" style="clear:left;">
 		<button class="tablinks" onclick="openTab(event, 'Table')" id="defaultOpen">LogLine Table</button>
 		<button class="tablinks" onclick="openTab(event, 'Graph1')">Monthly Access Graph</button>
 	</div>

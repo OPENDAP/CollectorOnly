@@ -26,8 +26,6 @@
 package org.opendap.harvester.service.impl;
 
 
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendap.harvester.HarvesterApplicationTest;
@@ -35,19 +33,14 @@ import org.opendap.harvester.dao.HyraxInstanceRepository;
 import org.opendap.harvester.dao.LogLineRepository;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.LogLineDto;
-import org.opendap.harvester.service.LogCollectorService;
 import org.opendap.harvester.service.LogLineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;

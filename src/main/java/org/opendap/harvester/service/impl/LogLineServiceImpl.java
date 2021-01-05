@@ -239,12 +239,11 @@ public class LogLineServiceImpl implements LogLineService {
     @Override
     public long findNumberLogLines(String hyraxInstanceId) {
     	return logLineRepository.countByHyraxInstanceId(hyraxInstanceId);
-    	/*
-    	List<LogLineDto> logs = logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
-                .map(this::buildDto)
-                .collect(Collectors.toList());
-    	return logs.size();
-    	*/
+    }
+    
+    @Override
+    public long findNumberLogLinesByHyraxName(String hyraxInstanceName) {
+    	return logLineRepository.countByHyraxInstanceId(hyraxInstanceRepository.findByName(hyraxInstanceName).getId());
     }
     
     @Override

@@ -25,6 +25,7 @@
 
 package org.opendap.harvester.service;
 
+import java.time.LocalDateTime;
 
 public interface DateTimeUtilService {
 	int convertDateToMonthLength(String rubbish);
@@ -33,5 +34,7 @@ public interface DateTimeUtilService {
 	int determineDayOfWeek(String rubbish);
 	String determineMonth(int num);
 	String determineEndMonth(String startMonth);
+	String convertDatetoReadible(LocalDateTime localDateTime);
+	String determineInterval(LocalDateTime ldt1, LocalDateTime ldt2);
 		
 }

@@ -28,15 +28,23 @@ package org.opendap.harvester.service.impl;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.service.DateTimeUtilService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DateTimeUtilServiceImpl implements DateTimeUtilService {
+	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	private boolean logOutput = false;
+	private boolean verbose = false;
 	
 	private SimpleDateFormat formatter6 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
 
@@ -51,7 +59,6 @@ public class DateTimeUtilServiceImpl implements DateTimeUtilService {
 		try {
 			date = formatter6.parse(rubbish);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 
@@ -71,7 +78,6 @@ public class DateTimeUtilServiceImpl implements DateTimeUtilService {
 		try {
 			date = formatter6.parse(rubbish);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 
@@ -93,7 +99,6 @@ public class DateTimeUtilServiceImpl implements DateTimeUtilService {
 		try {
 			date = formatter6.parse(rubbish);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -113,7 +118,6 @@ public class DateTimeUtilServiceImpl implements DateTimeUtilService {
 		try {
 			date = formatter6.parse(rubbish);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -210,6 +214,83 @@ public class DateTimeUtilServiceImpl implements DateTimeUtilService {
 		String endMonth = determineMonth(end);
 
 		return endMonth +" "+ year;
+	}
+	
+	public String convertDatetoReadible(LocalDateTime localDateTime) {
+		if(logOutput) {log.info("convertDatetoReadible() fct start ... ");}
+		
+		String month = determineMonth(localDateTime.getMonthValue());
+		if(logOutput && verbose) {log.info("convertDatetoReadible() 	- month ");}
+		int day = localDateTime.getDayOfMonth();
+		if(logOutput && verbose) {log.info("convertDatetoReadible() 	- day ");}
+		int year = localDateTime.getYear();
+		if(logOutput && verbose) {log.info("convertDatetoReadible() 	- year ");}
+		int hour = localDateTime.getHour();
+		if(logOutput && verbose) {log.info("convertDatetoReadible() 	- hour ");}
+		int mins = localDateTime.getMinute();
+		if(logOutput && verbose) {log.info("convertDatetoReadible() 	- minute ");}
+		
+		String readibleTime;
+		if (mins < 10) {
+			readibleTime = month +" "+ day +" "+ year + " @ "+ hour +":0"+ mins;
+		}
+		else {
+			readibleTime = month +" "+ day +" "+ year + " @ "+ hour +":"+ mins;
+		}
+		if(logOutput) {log.info("convertDatetoReadible() readible time : "+readibleTime);}
+		
+		if(logOutput) {log.info("convertDatetoReadible() returning <<<");}
+		return readibleTime;
+	}
+	
+	public String determineInterval(LocalDateTime ldt1, LocalDateTime ldt2) {
+		if(logOutput) {log.info("determineInterval() fct start ... ");}
+		if(logOutput) {log.info("determineInterval() time 1 : "+ldt1.toString()+" | time 2 : "+ldt2.toString());}
+		Duration duration = Duration.between(ldt1, ldt2);
+		long secs = duration.getSeconds();
+		if(logOutput && verbose) {log.info("determineInterval() seconds : "+ secs);}
+		String readibleInterval = "";
+		
+		long mins, hours, days;
+		mins = secs/60;
+		if(logOutput && verbose) {log.info("determineInterval() minutes : "+ mins);}
+		hours = mins/60;
+		if(logOutput && verbose) {log.info("determineInterval() hours : "+ hours);}
+		days = hours/24;
+		if(logOutput && verbose) {log.info("determineInterval() days : "+ days);}
+		
+		if(days <= 0) {
+			if (hours <= 0) {
+				readibleInterval = mins +" minute(s)";
+			}// *m
+			else if ((mins % 60) == 0) {
+				readibleInterval = hours +" hour(s)";
+			}// *h
+			else {
+				mins = mins % 60;
+				readibleInterval = hours +" hour(s) "+ mins +" minute(s)";
+			}// *h *m
+		}
+		else {
+			mins = mins % 60;
+			hours = hours % 24;
+			if ((hours == 0)&&(mins == 0)) {
+				readibleInterval = days +" day(s)";
+			}// *d
+			else if(hours == 0) {
+				readibleInterval = days +" day(s) "+ mins +" minute(s)";
+			}// *d *m
+			else if(mins == 0) {
+				readibleInterval = days +" day(s) "+ hours +" hour(s)";
+			}// *d *h
+			else {
+				readibleInterval = days +" day(s) "+ hours +" hour(s) "+ mins +" minute(s)";
+			}// *d *h *m
+		}
+		if(logOutput) {log.info("determineInterval() readible interval : "+ readibleInterval);}
+
+		if(logOutput) {log.info("determineInterval() returning <<<");}
+		return readibleInterval;
 	}
 	
 }

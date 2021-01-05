@@ -26,12 +26,9 @@
 package org.opendap.harvester.service.impl;
 
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendap.harvester.HarvesterApplicationTest;
-import org.opendap.harvester.dao.HyraxInstanceRepository;
-import org.opendap.harvester.service.HyraxInstanceService;
 import org.opendap.harvester.service.LogCollectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;

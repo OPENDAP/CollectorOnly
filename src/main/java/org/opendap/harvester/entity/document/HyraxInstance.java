@@ -32,17 +32,17 @@ package org.opendap.harvester.entity.document;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Document
 @Builder
-public class HyraxInstance extends BaseEntity {
+public class HyraxInstance extends BaseEntity {	
     @Getter @Setter
     private String name;
     @Getter @Setter
@@ -54,23 +54,70 @@ public class HyraxInstance extends BaseEntity {
     @Getter @Setter
     private String versionNumber;
     @Getter @Setter
+    private String serverVersionNumber;
+    @Getter @Setter
+    private String reporterVersionNumber;
+    @Getter @Setter
     private LocalDateTime registrationTime;
     @Getter @Setter
     private LocalDateTime lastAccessTime;
     @Getter @Setter
     private LocalDateTime lastSuccessfulPull;
     @Getter @Setter
-    private LocalDateTime lastErrorTime;
+    private LocalDateTime reporterLastErrorTime;
+    @Getter @Setter
+    private LocalDateTime serverLastErrorTime;
+    @Getter @Setter
+    private LocalDateTime serverLastAccessTime;
     @Getter @Setter
     private Boolean accessible = true;
     @Getter @Setter
-    private Integer errorCount = 0;
+    private Boolean reporterRunning = true;
     @Getter @Setter
-    private List<Integer> previousErrorCount;
+    private Boolean serverRunning = true;
+    @Getter @Setter
+    private List<DownTimes> reporterDownTimes;
+    @Getter @Setter
+    private List<DownTimes> serverDownTimes;
     @Getter @Setter
     private Boolean active = false;
     @Getter @Setter
     private UUID serverUUID;
     
+    public void addStartToReporterDownTime(LocalDateTime start) {
+    	if (reporterDownTimes == null) {
+    		initReporterDownTime();
+    	}
+    	DownTimes dt = new DownTimes();
+    	dt.start = start;
+    	reporterDownTimes.add(dt);
+    }
+    
+    public void addEndToReporterDownTime(LocalDateTime end) {
+    	reporterDownTimes.get(reporterDownTimes.size() - 1).end = end;
+    }
+    
+    public void addStartToServerDownTime(LocalDateTime start) {
+    	if (serverDownTimes == null) {
+    		initServerDownTime();
+    	}
+    	DownTimes dt = new DownTimes();
+    	dt.start = start;
+    	serverDownTimes.add(dt);
+    }
+    
+    public void addEndToServerDownTime(LocalDateTime end) {
+    	serverDownTimes.get(serverDownTimes.size() - 1).end = end;
+    }
+    
+    public void initReporterDownTime() {
+    	List<DownTimes> dts = new ArrayList<DownTimes>();
+		reporterDownTimes = dts;
+    }
+    
+    public void initServerDownTime() {
+    	List<DownTimes> dts = new ArrayList<DownTimes>();
+		serverDownTimes = dts;
+    }
 }
 

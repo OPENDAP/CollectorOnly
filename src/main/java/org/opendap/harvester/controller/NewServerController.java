@@ -49,10 +49,11 @@ public class NewServerController {
 	 * @return ModelAndView object to the New Server page
 	 * 
 	 */
+	/**
 	@RequestMapping(path = "/newServer", method = RequestMethod.GET)
 	public ModelAndView pageAccess(){
 		return new ModelAndView("newServer");
-	}
+	}*/
 	
 	/**
 	 * takes new server and reporter information and passes to 
@@ -64,6 +65,7 @@ public class NewServerController {
 	 * @return - redirection to registration method
 	 * 
 	 */
+	/**
 	@RequestMapping(path="/AddNewServer", method = RequestMethod.POST)//TODO need to switch submit to this in newServer.jsp
 	public ModelAndView addNewServer(@RequestParam String serverUrl, 
 			@RequestParam String reporterUrl, 
@@ -83,7 +85,6 @@ public class NewServerController {
 					+"&ping="+convertedPing
 					+"&log="+convertedLog);
 		}
-		
-		
-	}
+	} */
+	
 }
