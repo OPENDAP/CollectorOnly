@@ -72,14 +72,14 @@ tr.green td {
 <title>OPENDAP Collector Home</title>
 </head>
 <body>
-	<div id="Header" >
+	<div id="Header" style="clear:right;">
 		<h1 style="float:left;">${message}</h1>
 		<div style="float:right; text-align:right;">
 			Collector Version : ${version} <br/>
 			Page Generated : ${time}
 		</div>
 	</div>
-	<div id="List" style="float:left;">
+	<div id="List" style="float:left; clear:left;">
 		<table id="serverTable">
 			<tr>
 				<th colspan="3">Profile</th>

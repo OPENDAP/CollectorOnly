@@ -52,14 +52,14 @@ th, td {
 <title>Server Details</title>
 </head>
 <body>
-	<div id="Header">
+	<div id="Header" style="clear:right;">
 		<h1 style="float:left;">Server Details</h1>
 		<div style="float:right; text-align:right;">
 				Collector Version : ${version} <br/>
 				Page Generated : ${time}
 		</div>
 	</div>
-	<div id="Details" style="float:left; width:80%; height:95%;">
+	<div id="Details" style="float:left; width:80%; height:95%; clear:left;">
 		<div style="clear:right;">
 			<table id="ServerInfo" style="float:left">
 				<tr>
