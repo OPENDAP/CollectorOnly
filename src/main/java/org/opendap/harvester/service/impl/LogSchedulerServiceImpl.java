@@ -80,7 +80,7 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
                     
                     if (reporterVer.equalsIgnoreCase("error")) { // if error returned
                     	if(logOutput) {logg.info("checkHyraxInstances() reporter down ");}
-                    	if (hi.getReporterRunning() == true) { //if first error signal
+                    	if (hi.getReporterRunning() == null || hi.getReporterRunning() == true) { //if first error signal
                     		if(logOutput) {logg.info("checkHyraxInstances() reporter offline : setting reporter status 'offline' and recording start time of outage");}
                     		hi.setReporterRunning(false);
                     		if(logOutput && verbose) {logg.info("checkHyraxInstances() not running ");}
@@ -125,7 +125,7 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
                     
                     if (serverVer.equalsIgnoreCase("error")) { // if error returned
                     	if(logOutput) {logg.info("checkHyraxInstances() server down ");}
-                    	if (hi.getServerRunning() == true) { // if first error signal
+                    	if (hi.getServerRunning() == null || hi.getServerRunning() == true) { // if first error signal
                     		if(logOutput) {logg.info("checkHyraxInstances() server offline : setting server status 'offline' and recording start time of outage");}
                     		hi.setServerRunning(false);
                     		hi.addStartToServerDownTime(ldt);
@@ -156,11 +156,11 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
                     ///////////////////////////////////////////////////////////
                     if(logOutput) {logg.info("///////////////////////////////////////////////////");}
                     if(hi.getReporterRunning()) {
-	                    if (hi.getLastAccessTime() == null){
+	                    if (hi.getLastSuccessfulPull() == null){
 	                        logDataDto = logCollectorService.collectAllLogs(hi);
 	                        if(logOutput) {logg.info(" /!\\ collectAllLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
 	                    } else {
-	                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastAccessTime());
+	                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastSuccessfulPull());
 	                        if(logOutput) {logg.info(" /!\\ collectLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
 	                    }
                     

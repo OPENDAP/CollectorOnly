@@ -111,10 +111,10 @@ public class OpendapController{
 					"Last Access Time Unknown" : dateTimeUtilService.convertDatetoReadible(hid.getLastAccessTime()); // Profile Last Access Time
 			if(logOutput && verbose) { log.info("/opendap | 	- LAT : "+ nameList[index][2]); }
 			
-			nameList[index][3] = hid.getServerRunning().toString(); // Server Running
+			nameList[index][3] = (hid.getServerRunning() == null) ? "Unknown" : hid.getServerRunning().toString(); // Server Running
 			if(logOutput && verbose) { log.info("/opendap | 	- Server Running : "+ hid.getServerRunning()); }
 			
-			nameList[index][4] = hid.getReporterRunning().toString(); // Reporter Running
+			nameList[index][4] = (hid.getReporterRunning() == null) ? "Unknown" : hid.getReporterRunning().toString(); // Reporter Running
 			if(logOutput && verbose) { log.info("/opendap | 	- Reporter Running : "+ hid.getReporterRunning()); }
 
 			nameList[index][5] = ""+logLineService.findNumberLogLinesByHyraxName(hid.getName()); // Reporter Logs Pulled

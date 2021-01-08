@@ -67,7 +67,7 @@ public class LogLineServiceImpl implements LogLineService {
 
     @Override
     public void addLogLines(String hyraxInstanceId, List<LogLineDto> logLineDtoList) {
-    	if (logOutput) {logg.info("\naddLogLines() : Entering fct ...");}
+    	if (logOutput) {logg.info("addLogLines() : >>> function start");}
         HyraxInstance hyraxInstance = hyraxInstanceRepository.findByIdAndActiveTrue(hyraxInstanceId);
         if (logOutput) {logg.info("addLogLines() : hyraxInstance "+ hyraxInstance.getName());}
         
