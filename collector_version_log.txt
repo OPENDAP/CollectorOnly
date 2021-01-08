@@ -1,11 +1,11 @@
 # Collector Versions Log
 #
-# Version # 	: Date		: Github Branch	  	: Description of changes : 
+# Version # 	: Date		: Github Branch	  : Description of changes : 
 # ============================================================================================================
-# 1.0.1 		: ~ ~ ~ 	: HK-695 		  	: Added monthTotals class for monthly summary and added monthId to logLines
+# 1.0.1 	  	: ~ ~ ~ 	: HK-695 		  	  : Added monthTotals class for monthly summary and added monthId to logLines
 # ------------------------------------------------------------------------------------------------------------
-# 1.0.2 	 	: 1/5/21	: HK-717 		  	: Added querying for Reporter and Server up/down status 
-#				:			:					: Switches added for log output during testing
-#				:			:					: major changes to the /opendap and /serverDetails pages
-#				:			:					: minor changed to the /months, /hosts, and hostDetails pages
+# 1.0.2 	 	  : 1/5/21	: HK-717 		  	  : Added querying for Reporter and Server up/down status 
+#				      :			    :   					    : Switches added for log output during testing
+#				      :			    :		    			    : major changes to the /opendap and /serverDetails pages
+#				      :			    :					        : minor changed to the /months, /hosts, and hostDetails pages
 # ------------------------------------------------------------------------------------------------------------
