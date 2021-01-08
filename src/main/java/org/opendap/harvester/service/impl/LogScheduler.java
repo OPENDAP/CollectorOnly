@@ -25,13 +25,10 @@
 
 package org.opendap.harvester.service.impl;
 
-import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.dao.HyraxInstanceRepository;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.LogDataDto;
 import org.opendap.harvester.service.LogCollectorService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;

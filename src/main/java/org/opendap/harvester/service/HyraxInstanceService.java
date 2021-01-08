@@ -25,12 +25,11 @@
 
 package org.opendap.harvester.service;
 
-import org.opendap.harvester.entity.dto.HyraxInstanceDto;
-import org.opendap.harvester.entity.document.HyraxInstance;
-
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.stream.Stream;
+
+import org.opendap.harvester.entity.document.HyraxInstance;
+import org.opendap.harvester.entity.dto.HyraxInstanceDto;
 
 public interface HyraxInstanceService {
     HyraxInstance register(String serverUrl, String reporterUrl, Long ping, int log) throws Exception;
@@ -42,11 +41,13 @@ public interface HyraxInstanceService {
     void updateLastSuccessPullTime(HyraxInstance hi, LocalDateTime localDateTime);
     void updateActiveStatus(HyraxInstance hi, boolean active);
     void updateAccessibleStatus(HyraxInstance hi, boolean accessible);
-    void updateErrorCount(HyraxInstance hi, int count, boolean override);
-    void updateErrorCountList(HyraxInstance hi);
+    
+    String getHyraxVersion(String serverUrl);
+    String getReporterVersion(String reporterUrl);
     
     HyraxInstance findHyraxInstanceByName(String hyraxInstanceName);
     public HyraxInstance updatePing(String serverUrl, long ping);
     //TODO implement 'public HyraxInstance updateHyraxInstance(UpdateModel updateModel)'. sbl 7.2.19 ;
+    public void saveHyraxInstance(HyraxInstance hi);
     public void removeHyraxInstance(String hyraxInstanceId);
 }

@@ -67,7 +67,7 @@ public class LogLineServiceImpl implements LogLineService {
 
     @Override
     public void addLogLines(String hyraxInstanceId, List<LogLineDto> logLineDtoList) {
-    	if (logOutput) {logg.info("\naddLogLines() : Entering fct ...");}
+    	if (logOutput) {logg.info("addLogLines() : >>> function start");}
         HyraxInstance hyraxInstance = hyraxInstanceRepository.findByIdAndActiveTrue(hyraxInstanceId);
         if (logOutput) {logg.info("addLogLines() : hyraxInstance "+ hyraxInstance.getName());}
         
@@ -239,12 +239,11 @@ public class LogLineServiceImpl implements LogLineService {
     @Override
     public long findNumberLogLines(String hyraxInstanceId) {
     	return logLineRepository.countByHyraxInstanceId(hyraxInstanceId);
-    	/*
-    	List<LogLineDto> logs = logLineRepository.streamByHyraxInstanceId(hyraxInstanceId)
-                .map(this::buildDto)
-                .collect(Collectors.toList());
-    	return logs.size();
-    	*/
+    }
+    
+    @Override
+    public long findNumberLogLinesByHyraxName(String hyraxInstanceName) {
+    	return logLineRepository.countByHyraxInstanceId(hyraxInstanceRepository.findByName(hyraxInstanceName).getId());
     }
     
     @Override

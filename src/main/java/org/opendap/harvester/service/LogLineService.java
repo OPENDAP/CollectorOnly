@@ -36,7 +36,9 @@ public interface LogLineService {
     List<LogLineDto> findLogLines(String hyraxInstanceId, int count);
     List<LogLineDto> findLogLines(String hyraxInstanceId, int start, int end);
     List<LogLineDto> findLogLines(String hyraxInstanceId, String monthYear);
+    
     long findNumberLogLines(String hyraxInstanceId);
+    long findNumberLogLinesByHyraxName(String hyraxInstanceName);
     String findLogLinesAsString(String hyraxInstanceId);
     LogLineDto buildDto(LogLine logLine);
     void removeLogLines(String hyraxInstanceId);

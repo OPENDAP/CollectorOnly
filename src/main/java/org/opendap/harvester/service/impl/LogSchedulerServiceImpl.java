@@ -39,6 +39,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -49,6 +50,7 @@ import java.time.ZonedDateTime;
 public class LogSchedulerServiceImpl implements LogSchedulerService {
 	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
 	private boolean logOutput = false;
+	private boolean verbose = false;
 	
     @Autowired
     private HyraxInstanceService hyraxInstanceService;
@@ -66,40 +68,122 @@ public class LogSchedulerServiceImpl implements LogSchedulerService {
                 .forEach(hi -> {
                     LogDataDto logDataDto;
                     ZonedDateTime utc = ZonedDateTime.now(ZoneId.of("UTC"));
-                    if (hi.getLastAccessTime() == null){
-                        logDataDto = logCollectorService.collectAllLogs(hi);
-                        if(logOutput) {logg.info(" /!\\ collectAllLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
-                    } else {
-                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastAccessTime());
-                        if(logOutput) {logg.info(" /!\\ collectLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
-                    }
+                    LocalDateTime ldt = utc.toLocalDateTime();
                     
-                    hyraxInstanceService.updateLastAccessTime(hi, utc.toLocalDateTime());
-                    if(logOutput) {logg.info("checkHyraxInstances() updated last access time");}
+					/////////////////////////////////////////////////////////////////////////////////
+					// TEST REPORTER
+					///////////////////////////////////////////////////////////
+                    if(logOutput) {logg.info("///////////////////////////////////////////////////");}
+                    if(logOutput) {logg.info("checkHyraxInstances() checking status of "+hi.getReporterUrl()+" ...");}
+                    String reporterVer = hyraxInstanceService.getReporterVersion(hi.getReporterUrl());
+                    if(logOutput) {logg.info("checkHyraxInstances() ... done | version : '"+reporterVer+"'");}
                     
-                    if(logDataDto.numOfLines() != -1) {
-                    	if(logOutput) {logg.info("checkHyraxInstances() num of log lines != -1");}
-                    	hyraxInstanceService.updateLastSuccessPullTime(hi, utc.toLocalDateTime());
-                    	if(logOutput) {logg.info("checkHyraxInstances() updated last successful pull time");}
-                    	logLineService.addLogLines(hi.getId(), logDataDto.getLines());
-                    	if(logOutput) {logg.info("checkHyraxInstances() log lines added");}
-                    	if (hi.getAccessible() == null || !hi.getAccessible()) {
-                    		hyraxInstanceService.updateAccessibleStatus(hi, true);
-                    		if(logOutput) {logg.info("checkHyraxInstances() updated accessible status");}
-                    		hyraxInstanceService.updateErrorCount(hi, 0, true);
-                    		if(logOutput) {logg.info("checkHyraxInstances() updated error count");}
-                    		//holding for later date, will be used to track error intervals. SBL 12.12.19
-                    		//hyraxInstanceService.updateErrorCountList(hi);
-                    		//logg.info("checkHyraxInstances() updated error count list");
+                    if (reporterVer.equalsIgnoreCase("error")) { // if error returned
+                    	if(logOutput) {logg.info("checkHyraxInstances() reporter down ");}
+                    	if (hi.getReporterRunning() == null || hi.getReporterRunning() == true) { //if first error signal
+                    		if(logOutput) {logg.info("checkHyraxInstances() reporter offline : setting reporter status 'offline' and recording start time of outage");}
+                    		hi.setReporterRunning(false);
+                    		if(logOutput && verbose) {logg.info("checkHyraxInstances() not running ");}
+	                    	hi.setAccessible(false);
+	                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() not accessible ");}
+	                    	hi.addStartToReporterDownTime(ldt);
+	                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() start time recorded ");}
                     	}
+                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() logging times");}
+                    	hi.setLastAccessTime(ldt);
+                    	hi.setReporterLastErrorTime(ldt);
                     }
-                    else {
-                    	if(logOutput) {logg.info("checkHyraxInstances() error handler");}
-                    	hyraxInstanceService.updateAccessibleStatus(hi, false);
-                    	if(logOutput) {logg.info("checkHyraxInstances() updated accessible status");}
-                    	hyraxInstanceService.updateErrorCount(hi, 1, false);
-                    	if(logOutput) {logg.info("checkHyraxInstances() updated error count");}
+                    else { // if version returned
+                    	if(logOutput) {logg.info("checkHyraxInstances() reporter up ");}
+                    	if (hi.getReporterRunning() == null ) {
+                    		if(logOutput) {logg.info("checkHyraxInstances() reporter running init ");}
+                    		hi.setReporterRunning(true);
+                    	}
+                    	if (hi.getReporterRunning() == false) { //if recovering from error
+                    		if(logOutput) {logg.info("checkHyraxInstances() reporter online : setting reporter status 'online' and recording end time of outage ");}
+                    		hi.setReporterRunning(true);
+                    		if(logOutput && verbose) {logg.info("checkHyraxInstances() running ");}
+                    		hi.setAccessible(true);
+                    		if(logOutput && verbose) {logg.info("checkHyraxInstances() accessible ");}
+                    		hi.addEndToReporterDownTime(ldt);
+                    		if(logOutput && verbose) {logg.info("checkHyraxInstances() end time ");}
+                    	}
+                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() saving version ");}
+                    	hi.setReporterVersionNumber(reporterVer);
+                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() logging time ");}
+                    	hi.setLastAccessTime(ldt);
                     }
+                    
+					/////////////////////////////////////////////////////////////////////////////////
+					// TEST SERVER
+					///////////////////////////////////////////////////////////
+                    
+                    if(logOutput) {logg.info("///////////////////////////////////////////////////");}
+                    if(logOutput) {logg.info("checkHyraxInstances() checking status of "+hi.getName()+" ...");}
+                    String serverVer = hyraxInstanceService.getHyraxVersion(hi.getName());
+                    if(logOutput) {logg.info("checkHyraxInstances() ... done | version : '"+serverVer+"'");}
+                    
+                    if (serverVer.equalsIgnoreCase("error")) { // if error returned
+                    	if(logOutput) {logg.info("checkHyraxInstances() server down ");}
+                    	if (hi.getServerRunning() == null || hi.getServerRunning() == true) { // if first error signal
+                    		if(logOutput) {logg.info("checkHyraxInstances() server offline : setting server status 'offline' and recording start time of outage");}
+                    		hi.setServerRunning(false);
+                    		hi.addStartToServerDownTime(ldt);
+                    	}
+                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() logging times ");}
+                    	hi.setServerLastAccessTime(ldt);
+                    	hi.setServerLastErrorTime(ldt);
+                    }
+                    else { //if version returned
+                    	if(logOutput) {logg.info("checkHyraxInstances() server up ");}
+                    	if (hi.getServerRunning() == null) {
+                    		if(logOutput) {logg.info("checkHyraxInstances() server running init ");}
+                    		hi.setServerRunning(true);
+                    	}
+                    	if (hi.getServerRunning() == false) { // if recovering from error
+                    		if(logOutput) {logg.info("checkHyraxInstances() server online : setting reporter status 'online' and recording end time of outage");}
+                    		hi.setServerRunning(true);
+                    		hi.addEndToServerDownTime(ldt);
+                    	}
+                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() saving version");}
+                    	hi.setServerVersionNumber(serverVer);
+                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() logging time ");}
+                    	hi.setServerLastAccessTime(ldt);
+                    }
+                    
+                    /////////////////////////////////////////////////////////////////////////////////
+                    // RETRIEVE LOG LINES
+                    ///////////////////////////////////////////////////////////
+                    if(logOutput) {logg.info("///////////////////////////////////////////////////");}
+                    if(hi.getReporterRunning()) {
+	                    if (hi.getLastSuccessfulPull() == null){
+	                        logDataDto = logCollectorService.collectAllLogs(hi);
+	                        if(logOutput) {logg.info(" /!\\ collectAllLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
+	                    } else {
+	                        logDataDto = logCollectorService.collectLogs(hi, hi.getLastSuccessfulPull());
+	                        if(logOutput) {logg.info(" /!\\ collectLogs called on "+hi.getName()+" : "+logDataDto.numOfLines()+" log lines collected /!\\");}
+	                    }
+                    
+                    
+						/////////////////////////////////////////////////////////////////////////////////
+						// SAVE LOG LINES
+						///////////////////////////////////////////////////////////
+	                    
+	                    if(logOutput) {logg.info("/////////////////////////");}
+	                    if(logDataDto.numOfLines() != -1) {
+	                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() num of log lines != -1");}
+	                    	hi.setLastSuccessfulPull(ldt);
+	                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() updated last successful pull time");}
+	                    	logLineService.addLogLines(hi.getId(), logDataDto.getLines());
+	                    	if(logOutput && verbose) {logg.info("checkHyraxInstances() log lines added");}
+	                    }
+	                    else {
+	                    	if(logOutput) {logg.info("checkHyraxInstances() error handler");}
+	                    }
+                    }
+                    
+                    if(logOutput) {logg.info("checkHyraxInstances() returning <<<");}
+                    hyraxInstanceService.saveHyraxInstance(hi);
                 }); //.filter(...).forEach()
     }//checkHyraxinstances()
 

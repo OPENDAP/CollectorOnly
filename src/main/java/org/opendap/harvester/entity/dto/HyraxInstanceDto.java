@@ -33,7 +33,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -49,9 +48,9 @@ public class HyraxInstanceDto {
     @Getter @Setter
     private String versionNumber;
     @Getter @Setter
-    private String registrationTime;
+    private LocalDateTime registrationTime;
     @Getter @Setter
-    private String lastAccessTime;
+    private LocalDateTime lastAccessTime;
     @Getter @Setter
 	private LocalDateTime lastSuccessfulPull;
 	@Getter @Setter
@@ -59,9 +58,9 @@ public class HyraxInstanceDto {
 	@Getter @Setter
 	private Boolean accessible = true;
 	@Getter @Setter
-	private Integer errorCount = 0;
+	private Boolean reporterRunning = true;
 	@Getter @Setter
-	private List<Integer> previousErrorCount;
+	private Boolean serverRunning = true;
     @Getter @Setter
     private Boolean active = false;
     @Getter @Setter

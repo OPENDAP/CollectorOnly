@@ -27,6 +27,7 @@ package org.opendap.harvester.dao;
 
 import org.opendap.harvester.entity.document.LogLine;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -38,5 +39,6 @@ public interface LogLineRepository extends MongoRepository<LogLine, String> {
     Stream<LogLine> streamByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId);
     List<LogLine> findByHyraxInstanceId(String hyraxInstanceId);
     Long countByHyraxInstanceId(String hyraxInstanceId);
+    @Query
     Long countByHyraxInstanceIdAndMonthId(String hyraxInstanceId, String monthId); // false error, do not remove! - SBL 11.3.20 
 }

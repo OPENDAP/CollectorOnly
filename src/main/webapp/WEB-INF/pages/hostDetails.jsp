@@ -24,9 +24,15 @@ th, td {
 <title>User Agent Details</title>
 </head>
 <body>
-	<div>
-		<h3>Server: ${serverName}</h3>
-		<h3>${month}</h3><br/>
+	<div id="Header" style="clear:right;">
+		<h2 style="float:left;">Server: ${serverName}</h2>
+		<div style="float:right; text-align:right;">
+				Collector Version : ${version} <br/>
+				Page Generated : ${time}
+		</div>
+	</div>
+	<div style="clear:left;">
+		<h3>${month}</h3>
 		<h3>${hostname}</h3>
 	</div>
 	<div>

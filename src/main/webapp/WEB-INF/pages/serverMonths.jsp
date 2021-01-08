@@ -51,8 +51,14 @@ th, td {
 <title>Server Months</title>
 </head>
 <body>
-	<div><h1>Server: ${serverName}</h1></div>
-	<div>
+	<div id="Header" style="clear:right;">
+		<h2 style="float:left;">Server: ${serverName}</h2>
+		<div style="float:right; text-align:right;">
+				Collector Version : ${version} <br/>
+				Page Generated : ${time}
+		</div>
+	</div>
+	<div style="clear:left;">
 		<table>
 			<tr> 
 				<th> Month </th> <th> Number of Accesses </th> <th> Bytes Downloaded </th>
@@ -73,7 +79,6 @@ th, td {
 				</tr>
 			</c:forEach>
 		</table>
-		generated in ${time}
 	</div>
 </body>
 </html>

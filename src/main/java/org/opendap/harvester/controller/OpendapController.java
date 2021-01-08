@@ -41,11 +41,14 @@ import java.util.stream.Collectors;
 import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.HyraxInstanceDto;
+import org.opendap.harvester.service.DateTimeUtilService;
 import org.opendap.harvester.service.HyraxInstanceService;
+import org.opendap.harvester.service.LogLineParsingUtilService;
 import org.opendap.harvester.service.LogLineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,13 +56,24 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class OpendapController{
-	//private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	private static final Logger log = LoggerFactory.getLogger(HarvesterApplication.class);
+	private boolean logOutput = false;
+	private boolean verbose = false;
+	
+	@Value("${harvester.version}")
+    private String harvesterVersion;
 	
 	@Autowired
 	private HyraxInstanceService hyraxInstanceService;
 	
 	@Autowired
 	private LogLineService logLineService;
+	
+	@Autowired
+	private LogLineParsingUtilService logLineParsingUtilService;
+	
+	@Autowired
+	private DateTimeUtilService dateTimeUtilService;
 	
 	/**
 	 * access method for the opendap.jsp page
@@ -68,6 +82,9 @@ public class OpendapController{
 	 */
 	@RequestMapping(value="/opendap", method = RequestMethod.GET)
 	public ModelAndView opendap() {
+		if(logOutput) { log.info("/opendap | >>> function start"); }
+		long starttime = System.nanoTime();
+		
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("opendap");
 		
@@ -77,33 +94,46 @@ public class OpendapController{
 		List<HyraxInstanceDto> list = hyraxInstanceService.allHyraxInstances(false)
 				.map(hyraxInstanceService::buildDto)
 				.collect(Collectors.toList());
+		if(logOutput) { log.info("/opendap | list of hyraxInstanceDto retrieved"); }
 				
 		String[][] nameList = new String[list.size()][6];
 		int index = 0;
 		for(HyraxInstanceDto hid : list){
-			nameList[index][0] = hid.getName();
-			nameList[index][1] = hid.getAccessible().toString();
-			//nameList[index][1] = "placeholder"; max = (a > b) ? a : b;
-			nameList[index][2] = (hid.getErrorCount() != null) ? hid.getErrorCount().toString() : "0";
-			//nameList[index][2] = "placeholder";
-			nameList[index][3] = hid.getActive().toString();
-			HyraxInstance register = hyraxInstanceService.findHyraxInstanceByName(hid.getName());
-			nameList[index][4] = ""+logLineService.findNumberLogLines(register.getId());
-			//log.info("LSP : "+register.getLastSuccessfulPull());
-			//log.info("LAT : "+register.getLastAccessTime());
-			String lsp;
-			if (register.getLastSuccessfulPull() == null) {
-				lsp = "Time Not Found";
-			}
-			else {
-				lsp = register.getLastSuccessfulPull().toString();
-			}
-			nameList[index][5] = lsp;
+			if(logOutput && verbose) { log.info("/opendap | populating namelist["+index+"][~]"); }
+			
+			nameList[index][0] = hid.getName(); // Profile Instance
+			if(logOutput && verbose) { log.info("/opendap | 	- name : "+ hid.getName()); }
+			
+			nameList[index][1] = hid.getActive().toString(); // Profile Active
+			if(logOutput && verbose) { log.info("/opendap | 	- active : " + hid.getActive()); }
+
+			nameList[index][2] = (hid.getLastAccessTime() == null) ? 
+					"Last Access Time Unknown" : dateTimeUtilService.convertDatetoReadible(hid.getLastAccessTime()); // Profile Last Access Time
+			if(logOutput && verbose) { log.info("/opendap | 	- LAT : "+ nameList[index][2]); }
+			
+			nameList[index][3] = (hid.getServerRunning() == null) ? "Unknown" : hid.getServerRunning().toString(); // Server Running
+			if(logOutput && verbose) { log.info("/opendap | 	- Server Running : "+ hid.getServerRunning()); }
+			
+			nameList[index][4] = (hid.getReporterRunning() == null) ? "Unknown" : hid.getReporterRunning().toString(); // Reporter Running
+			if(logOutput && verbose) { log.info("/opendap | 	- Reporter Running : "+ hid.getReporterRunning()); }
+
+			nameList[index][5] = ""+logLineService.findNumberLogLinesByHyraxName(hid.getName()); // Reporter Logs Pulled
+			if(logOutput && verbose) { log.info("/opendap | 	- Reporter Logs Pulled : "+ nameList[index][5]); }
+			
 			index++;
 		}//end for loop
+		if(logOutput) { log.info("/opendap | namelist[][] built"); }
 		
 		mav.addObject("items", nameList);
+		mav.addObject("version", harvesterVersion);
 		
+		long endtime = System.nanoTime();
+		long duration = endtime - starttime;
+		String time =  logLineParsingUtilService.parseTime(duration);
+		
+		mav.addObject("time", time);
+		
+		if(logOutput) { log.info("/opendap | returning <<<"); }
 		return mav;
 	}//end opendap()
 	

@@ -27,6 +27,7 @@
 
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -51,63 +52,135 @@ th, td {
 <title>Server Details</title>
 </head>
 <body>
-	<h1>Server Details</h1>
-	<div id="Details" style="float:left">
-		<table>
-			<tr>
-				<th>ID:</th>
-				<td>${serverId}</td>
-			</tr>
-			<tr>
-				<th>Server URL: </th>
-				<td>${serverUrl}</td>
-			</tr>
-			<tr>
-				<th>Reporter URL: </th>
-				<td>${reporterUrl}</td>
-			</tr>
-			<tr>
-				<th>Ping Interval:</th>
-				<td>${ping}</td>
-			</tr>
-			<tr>
-				<th># of Logs to Pull: </th>
-				<td>${log}</td>
-			</tr>
-			<tr>
-				<th># of Logs Pulled to Date: </th>
-				<td>${number}</td>
-			</tr>
-			<tr>
-				<th>Software Version: </th>
-				<td>${version}</td>
-			</tr>
-			<tr>
-				<th>Is Currently Accessible: </th>
-				<td>${isRunning}</td>
-			</tr>
-			<tr>
-				<th>Date Registered: </th>
-				<td>${registrationTime}</td>
-			</tr>
-			<tr>
-				<th>Last Accessed: </th>
-				<td>${lastAccessTime}</td>
-			</tr>
-			<tr>
-				<th>Last Successful Pull: </th>
-				<td>${lastSuccessfulPull}</td>
-			</tr>
-			<tr>
-				<th>Currently Active: </th>
-				<td>${active}</td>
-			</tr>	
-		</table>
+	<div id="Header" style="clear:right;">
+		<h1 style="float:left;">Server Details</h1>
+		<div style="float:right; text-align:right;">
+				Collector Version : ${version} <br/>
+				Page Generated : ${time}
+		</div>
 	</div>
-	<div id="Controls" style="float:right;">
+	<div id="Details" style="float:left; width:80%; height:95%; clear:left;">
+		<div style="clear:right;">
+			<table id="ServerInfo" style="float:left">
+				<tr>
+					<th colspan="2">Server Information</th>
+				</tr>
+				<tr>
+					<th>URL: </th>
+					<td>${serverUrl}</td>
+				</tr>
+				<tr>
+					<th>Version: </th>
+					<td>${serverVer}</td>
+				</tr>
+				<tr>
+					<th>Running: </th>
+					<td>${serverRun}</td>
+				</tr>
+				<tr>
+					<th>Last Access Time: </th>
+					<td>${serverLAT}</td>
+				</tr>
+				<tr>
+					<th>Last Error Time: </th>
+					<td>${serverLET}</td>
+				</tr>	
+			</table>
+			<table id="ServerHist" style="float:left">
+				<tr>
+					<th colspan="3">Last 5 Server Outages</th>
+				</tr>
+				<tr>
+					<th>Start DateTime</th>
+					<th>End DateTime</th>
+					<th>Outage Interval</th>
+				</tr>
+				<c:forEach items="${serverHistory}" var="server">
+				<tr>
+					<td>${server[0]}</td>
+					<td>${server[1]}</td>
+					<td>${server[2]}</td>
+				</tr>
+				</c:forEach>
+			</table>
+		</div>
+		<div style="clear:left;">
+			<table id="ReporterInfo" style="float:left">
+				<tr>
+					<th colspan="2">Reporter Information</th>
+				</tr>
+				<tr>
+					<th>ID:</th>
+					<td>${serverId}</td>
+				</tr>
+				<tr>
+					<th>URL: </th>
+					<td>${reporterUrl}</td>
+				</tr>
+				<tr>
+					<th>Version: </th>
+					<td>${reporterVer}</td>
+				</tr>
+				<tr>
+					<th>Running: </th>
+					<td>${reporterRun}</td>
+				</tr>
+				<tr>
+					<th>Ping Interval:</th>
+					<td>${ping}</td>
+				</tr>
+				<tr>
+					<th># of Logs to Pull: </th>
+					<td>${log}</td>
+				</tr>
+				<tr>
+					<th># of Logs Pulled to Date: </th>
+					<td>${number}</td>
+				</tr>
+				<tr>
+					<th>Date Registered: </th>
+					<td>${reporterRT}</td>
+				</tr>
+				<tr>
+					<th>Last Accessed Time: </th>
+					<td>${reporterLAT}</td>
+				</tr>
+				<tr>
+					<th>Last Successful Pull Time: </th>
+					<td>${reporterLSP}</td>
+				</tr>
+				<tr>
+					<th>Last Error Time: </th>
+					<td>${reporterLET}</td>
+				</tr>
+				<tr>
+					<th>Currently Active: </th>
+					<td>${active}</td>
+				</tr>
+			</table>
+			<table id="ReporterHist" style="float:left">
+				<tr>
+					<th colspan="3">Last 5 Reporter Outages</th>
+				</tr>
+				<tr>
+					<th>Start DateTime</th>
+					<th>End DateTime</th>
+					<th>Outage Interval</th>
+				</tr>
+				<c:forEach items="${reporterHistory}" var="reporter">
+				<tr>
+					<td>${reporter[0]}</td>
+					<td>${reporter[1]}</td>
+					<td>${reporter[2]}</td>
+				</tr>
+				</c:forEach>
+			</table>
+		</div>
+	</div>
+	<div id="Controls" style="float:right; width:20%;">
 	<h2>Controls</h2>
 		Server Access Logs
-		<br/> &emsp;
+		<br/> &emsp; <!-- &emsp; is the code for a tab -->
 		<a href="./harvester/logLines?hyraxInstanceName=${name}">
 			(Last 500)
 		</a>
@@ -143,20 +216,8 @@ th, td {
 		 -->
 		<br/>
 		<br/>
-		Current Error Count : ${errorCount} <br/>
-		<!--
-		Previous Error Counts : <br/>
-		<table>
-			<c:forEach items="${items}" var="listItem">
-				<tr>
-					<td>
-						Error Count: ${listItem}
-					</td>
-				</tr>
-			</c:forEach>
-		</table>
-		-->
 	</div>
+	
 	<script>
 		var serverName = '${name}';
 		//console.log("Name: "+ serverName);

@@ -26,9 +26,12 @@
 package org.opendap.harvester.service.impl;
 
 import org.opendap.harvester.entity.dto.HyraxInstanceDto;
+import org.opendap.harvester.HarvesterApplication;
 import org.opendap.harvester.dao.HyraxInstanceRepository;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.service.HyraxInstanceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -43,8 +46,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -56,7 +57,8 @@ import static org.springframework.util.StringUtils.*;
  */
 @Service
 public class HyraxInstanceServiceImpl implements HyraxInstanceService {
-	//private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	private static final Logger logg = LoggerFactory.getLogger(HarvesterApplication.class);
+	private boolean logOutput = false;
 	
     @Autowired
     private HyraxInstanceRepository hyraxInstanceRepository;
@@ -105,6 +107,8 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .log(log)
                 .ping(Math.min(ping == null ? Long.MAX_VALUE : ping, reporterDefaultPing))
                 .versionNumber(hyraxVersion)
+                .serverVersionNumber(hyraxVersion)
+                .reporterVersionNumber("*.*.*")
                 .registrationTime(LocalDateTime.now())
                 .active(true)//                
                 .serverUUID(serverId)
@@ -157,49 +161,6 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     	hyraxInstanceRepository.save(hyraxInstance);
     }//updateAccessibleStatus()
     
-    @Override
-    public void updateErrorCount(HyraxInstance hi, int count, boolean override) {
-    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
-    	if (override) {
-    		hyraxInstance.setErrorCount(count);
-    	}
-    	else {
-    		if (hyraxInstance.getErrorCount() == null) {
-    			hyraxInstance.setErrorCount(0 + count);
-    		}
-    		else {
-    			hyraxInstance.setErrorCount(hyraxInstance.getErrorCount() + count);
-    		}
-    		
-    	}
-    	hyraxInstanceRepository.save(hyraxInstance);
-    }//updateErrorCount()
-    
-    @Override
-    public void updateErrorCountList(HyraxInstance hi) {
-    	HyraxInstance hyraxInstance = hyraxInstanceRepository.findById(hi.getId());
-    	//logg.info("updateErrorCountList.1/7) found hyrax instance ");
-    	if(hyraxInstance.getErrorCount() == null) {
-    		//logg.info("updateErrorCountList.2/7) error count was null ");
-    		hyraxInstance.setErrorCount(0);
-    	}
-    	//logg.info("updateErrorCountList.3/7) fixed null ");
-    	if (hyraxInstance.getErrorCount() > 0) {
-    		//logg.info("updateErrorCountList.4/7) error count greater than 0");
-    		List<Integer> list = hyraxInstance.getPreviousErrorCount(); 
-    		if (list == null) {
-    			list = new ArrayList<Integer>();
-    		}
-    		list.add(hyraxInstance.getErrorCount());
-    		hyraxInstance.setPreviousErrorCount(list);
-    		//logg.info("updateErrorCountList.5/7) added to list");
-    		hyraxInstance.setErrorCount(0);
-    		//logg.info("updateErrorCountList.6/7) set count to zero ");
-    	}
-    	//logg.info("updateErrorCountList.1/7) returning ... ");
-    	hyraxInstanceRepository.save(hyraxInstance);
-    }//updateErrorCountList()
-    
     /**
      * 
      * @param updateModel
@@ -224,16 +185,63 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     	
     }// end updateHyraxInstance() //     
     */
+    
+    public String getHyraxVersion(String serverUrl) {
+    	if(logOutput) { logg.info("getHyraxVersion) start, calling checkDomainNameAndGetVersion() ...");}
+    	String hyraxVer = "error";
+    	try {
+			hyraxVer = checkDomainNameAndGetVersion(serverUrl);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	if(logOutput) { logg.info("getHyraxVersion) ... called checkDomainNameAndGetVersion()");}
+    	if(logOutput) { logg.info("getHyraxVersion) hyraxVersion = '"+hyraxVer+"'");}
+    	
+        if (isEmpty(hyraxVer)){
+        	hyraxVer = "error";
+        }
+    	
+    	if(logOutput) { logg.info("getHyraxVersion) returning <<<");}
+    	return hyraxVer;
+    }
+    
+    public String getReporterVersion(String reporterUrl){
+    	if(logOutput) { logg.info("getReporterVersion) start, calling checkreporter() ...");}
+    	String reporterVer = "error";
+    	try {
+			reporterVer = checkReporter(reporterUrl);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	if(logOutput) { logg.info("getReporterVersion) ... called checkreporter(), version = '"+reporterVer+"'");}
+    	
+        if (isEmpty(reporterVer)){
+        	reporterVer = "error";
+        }
+        
+    	if(logOutput) { logg.info("getReporterVersion) returning <<<");}
+    	return reporterVer;
+    }
 
-    private void checkReporter(String server) throws Exception {
-    	//logg.info("checkR.1) checkReporter() entry, calling reporter ..."); // <---
+    private String checkReporter(String server) throws Exception {
+    	if(logOutput) { logg.info("checkReporter) checkReporter() entry, calling reporter ...");}
+    	
+    	//////////////////////////////////////////////////////////////////////
+    	// CALL THE REPORTER
         ResponseEntity<String> entity = restTemplate.getForEntity(new URI(server + "/healthcheck"), String.class);
-        //logg.info("checkR.2) reporter returned : "+entity.getStatusCode()); // <---
+        if(logOutput) { logg.info("checkReporter) reporter returned : "+entity.getStatusCode());}
         if (!entity.getStatusCode().is2xxSuccessful()){
-        	//logg.info("checkR.2e) failure"); // <---
+        	if(logOutput) { logg.info("checkReporter.e) failure"); }
             throw new IllegalStateException("Can not find reporter on this Hyrax Instance");
         }
-        //logg.info("checkR.3) returning <<"); 
+        
+    	//////////////////////////////////////////////////////////////////////
+    	// PARSE THE VERSION
+        String version = entity.getBody();
+        version = version.substring(18);
+        
+        if(logOutput) { logg.info("checkReporter) returning <<"); }
+        return version;
     }
 
     private Long getReporterDefaultPing(String server) throws Exception {
@@ -263,13 +271,14 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
                 .ping(hyraxInstance.getPing())
                 .log(hyraxInstance.getLog())
                 .versionNumber(hyraxInstance.getVersionNumber())
-                .registrationTime(String.valueOf(hyraxInstance.getRegistrationTime()))
-                .lastAccessTime(String.valueOf(hyraxInstance.getLastAccessTime()))
+                .registrationTime(hyraxInstance.getRegistrationTime())
+                .lastAccessTime(hyraxInstance.getLastAccessTime())
                 .serverUUID(hyraxInstance.getServerUUID())
                 .active(hyraxInstance.getActive())
                 .accessible(hyraxInstance.getAccessible())
                 .lastSuccessfulPull(hyraxInstance.getLastSuccessfulPull())
-                .errorCount(hyraxInstance.getErrorCount())
+                .reporterRunning(hyraxInstance.getReporterRunning())
+                .serverRunning(hyraxInstance.getServerRunning())
                 .build();
     }
 
@@ -291,6 +300,10 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     public HyraxInstance findHyraxInstanceByName(String hyraxInstanceName) {
         //return hyraxInstanceRepository.findByNameAndActiveTrue(hyraxInstanceName);
         return hyraxInstanceRepository.findByName(hyraxInstanceName);
+    }
+    
+    public void saveHyraxInstance(HyraxInstance hi) {
+    	hyraxInstanceRepository.save(hi);
     }
     
     @Override

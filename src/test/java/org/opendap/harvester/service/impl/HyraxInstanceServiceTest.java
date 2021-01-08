@@ -25,10 +25,8 @@
 
 package org.opendap.harvester.service.impl;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.opendap.harvester.HarvesterApplicationTest;
 import org.opendap.harvester.dao.HyraxInstanceRepository;
 import org.opendap.harvester.entity.document.HyraxInstance;
@@ -45,7 +43,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Random;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;

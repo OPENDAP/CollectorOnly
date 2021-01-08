@@ -28,7 +28,6 @@ package org.opendap.harvester.controller;
 import org.opendap.harvester.entity.document.HyraxInstance;
 import org.opendap.harvester.entity.dto.LogLineDto;
 import org.opendap.harvester.entity.dto.model.HyraxInstanceNameModel;
-import org.opendap.harvester.entity.dto.model.RegisterModel;
 import org.opendap.harvester.service.HyraxInstanceService;
 import org.opendap.harvester.service.LogLineService;
 import org.springframework.beans.factory.annotation.Autowired;
