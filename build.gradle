@@ -29,17 +29,22 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
-		maven {url "http://repo.spring.io/snapshot"}
-		maven {url "http://repo.spring.io/milestone"}
+		maven {url "https://repo.spring.io/snapshot"}
+		maven {url "https://repo.spring.io/milestone"}
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
 	}
 }
 
+plugins {
+    id 'org.springframework.boot' version '2.5.0'
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
+apply plugin: 'idea'
+//apply plugin: 'org.springframework.boot'
 apply plugin: 'war'
 
 war{
@@ -55,8 +60,8 @@ targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
-	maven {url "http://repo.spring.io/snapshot"}
-	maven {url "http://repo.spring.io/snapshot"}
+	maven {url "https://repo.spring.io/snapshot"}
+	maven {url "https://repo.spring.io/snapshot"}
 }
 
 configurations.all{
@@ -64,22 +69,31 @@ configurations.all{
 }
 
 dependencies {    
-	compile('org.projectlombok:lombok:1.16.6')
-	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
-	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.apache.tomcat.embed:tomcat-embed-jasper:9.0.1')
-	compile('javax.servlet:jstl:1.2') //in case we need it later
-	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
-	compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.6.1'
-	compile group: 'ch.qos.logback', name: 'logback-access', version: '1.1.7'
+	implementation('org.projectlombok:lombok:1.16.6')
+	
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '2.6.1'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.5.0'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.5.0'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.5.0'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.5.0'
+	
+	implementation group: 'org.springframework.data', name: 'spring-data-mongodb', version: '2.1.11.RELEASE'
+	//implementation group: 'javax.validation', name: 'com.springsource.javax.validation', version: '1.0.0.GA'
+	implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.10'
+	//implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '2.11.0'
+	
+	implementation('org.apache.tomcat.embed:tomcat-embed-jasper:9.0.1')
+	implementation('javax.servlet:jstl:1.2') //in case we need it later
+	implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
+	implementation group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.6.1'
+	implementation group: 'ch.qos.logback', name: 'logback-access', version: '1.1.7'
 	
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
-	testCompile('org.springframework.boot:spring-boot-starter-test') 
+	testImplementation('org.springframework.boot:spring-boot-starter-test') 
 	
-	testCompile group: 'com.github.fakemongo', name: 'fongo', version: '1.6.5'
-	testCompile 'org.mockito:mockito-core:1.10.19'
+	testImplementation group: 'com.github.fakemongo', name: 'fongo', version: '1.6.5'
+	testImplementation 'org.mockito:mockito-core:1.10.19'
 }
 
 

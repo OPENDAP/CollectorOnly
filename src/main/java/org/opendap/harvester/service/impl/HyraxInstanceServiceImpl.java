@@ -65,6 +65,9 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
 
     @Autowired
     private RestTemplate restTemplate;
+    
+    //@Autowired
+    //private WebClient client;
 
     @Override
     public HyraxInstance register(String serverUrl, String reporterUrl, Long ping, int log) throws Exception {
@@ -250,7 +253,9 @@ public class HyraxInstanceServiceImpl implements HyraxInstanceService {
     }
 
     private String checkDomainNameAndGetVersion(String server) throws Exception {
-        String xmlString = restTemplate.getForObject(new URI(server + "/version"), String.class);
+        String xmlString = restTemplate.getForObject(new URI(server + "/version"), String.class); 
+        
+        //String xmlString = 
         XPath xPath =  XPathFactory.newInstance().newXPath();
         return xPath.compile("/HyraxCombinedVersion/Hyrax/@version")
                 .evaluate(loadXMLFromString(xmlString));
