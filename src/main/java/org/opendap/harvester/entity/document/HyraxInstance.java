@@ -47,9 +47,9 @@ public class HyraxInstance extends BaseEntity {
     private String name;
     @Getter @Setter
     private String reporterUrl;
-    @Getter @Setter 
+    @Getter @Setter @Builder.Default
     private Long ping = 0L;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private Integer log = 0;
     @Getter @Setter
     private String versionNumber;
@@ -69,17 +69,17 @@ public class HyraxInstance extends BaseEntity {
     private LocalDateTime serverLastErrorTime;
     @Getter @Setter
     private LocalDateTime serverLastAccessTime;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private Boolean accessible = true;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private Boolean reporterRunning = true;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private Boolean serverRunning = true;
     @Getter @Setter
     private List<DownTimes> reporterDownTimes;
     @Getter @Setter
     private List<DownTimes> serverDownTimes;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private Boolean active = false;
     @Getter @Setter
     private UUID serverUUID;

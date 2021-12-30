@@ -41,9 +41,9 @@ public class HyraxInstanceDto {
     private String name;
     @Getter @Setter
     private String reporterUrl;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private Long ping = 0L;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private int log = 0;
     @Getter @Setter
     private String versionNumber;
@@ -55,13 +55,13 @@ public class HyraxInstanceDto {
 	private LocalDateTime lastSuccessfulPull;
 	@Getter @Setter
 	private LocalDateTime lastErrorTime;
-	@Getter @Setter
+	@Getter @Setter @Builder.Default
 	private Boolean accessible = true;
-	@Getter @Setter
+	@Getter @Setter @Builder.Default
 	private Boolean reporterRunning = true;
-	@Getter @Setter
+	@Getter @Setter @Builder.Default
 	private Boolean serverRunning = true;
-    @Getter @Setter
+    @Getter @Setter @Builder.Default
     private Boolean active = false;
     @Getter @Setter
     private UUID serverUUID;
