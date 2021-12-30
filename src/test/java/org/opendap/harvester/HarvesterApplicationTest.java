@@ -35,8 +35,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.core.convert.CustomConversions;
+// import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+// Deprecated. Replaced by:
+import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.web.client.RestTemplate;
 
@@ -47,7 +50,7 @@ import java.util.List;
 @ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
         value = {HarvesterApplication.class, SpringMongoDataConfig.class}))
 @EnableMongoRepositories
-public class HarvesterApplicationTest extends AbstractMongoConfiguration {
+public class HarvesterApplicationTest extends AbstractMongoClientConfiguration {
 
     @Override
     protected String getDatabaseName() {
@@ -66,11 +69,11 @@ public class HarvesterApplicationTest extends AbstractMongoConfiguration {
 
     @Bean
     @Override
-    public CustomConversions customConversions() {
+    public MongoCustomConversions customConversions() {
         List<Converter<?, ?>> converterList = new ArrayList<>();
         converterList.add(new LocalDateTimeToStringConverter());
         converterList.add(new StringToLocalDateTimeConverter());
-        return new CustomConversions(converterList);
+        return new MongoCustomConversions(converterList);
     }
 }
 

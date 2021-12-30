@@ -36,14 +36,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.core.convert.CustomConversions;
+
+// import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+// Deprecated, since 2.2 in favor of AbstractMongoClientConfiguration.
+
+import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-public class SpringMongoDataConfig extends AbstractMongoConfiguration {
+public class SpringMongoDataConfig extends AbstractMongoClientConfiguration {
     @Value("${mongo.db.name}")
     private String databaseName;
 
@@ -56,7 +60,7 @@ public class SpringMongoDataConfig extends AbstractMongoConfiguration {
     }
 
     @Bean
-    public Mongo mongo() throws Exception {
+    public MongoClient mongo() throws Exception {
         return new MongoClient(databaseServer);
     }
 
@@ -66,10 +70,10 @@ public class SpringMongoDataConfig extends AbstractMongoConfiguration {
      */
     @Bean
     @Override
-    public CustomConversions customConversions() {
+    public MongoCustomConversions customConversions() {
         List<Converter<?, ?>> converterList = new ArrayList<>();
         converterList.add(new LocalDateTimeToStringConverter());
         converterList.add(new StringToLocalDateTimeConverter());
-        return new CustomConversions(converterList);
+        return new MongoCustomConversions(converterList);
     }
 }
